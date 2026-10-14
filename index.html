@@ -11,8 +11,6 @@
       --muted: #9aa3b5;
       --accent: #7c5cff;
       --accent2: #2ee6a6;
-      --danger: #ff5c7a;
-      --card: rgba(255,255,255,0.04);
       --border: rgba(255,255,255,0.1);
     }
     * { box-sizing: border-box; }
@@ -24,8 +22,28 @@
         radial-gradient(800px 400px at 80% 100%, rgba(46,230,166,0.12), transparent 50%),
         var(--bg);
       color: var(--fg);
+      overflow: hidden;
+    }
+    #bg-words {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    #bg-words span {
+      position: absolute;
+      white-space: nowrap;
+      font-weight: 700;
+      user-select: none;
+      line-height: 1;
+      opacity: 0.18;
+      transform-origin: center center;
+      color: #c9d2ea;
     }
     .wrap {
+      position: relative;
+      z-index: 1;
       min-height: 100%;
       display: flex;
       align-items: center;
@@ -38,7 +56,7 @@
       padding: 56px 28px;
       border: 1px solid var(--border);
       border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(12,14,22,0.82));
       backdrop-filter: blur(16px);
       box-shadow: 0 30px 80px rgba(0,0,0,0.45);
     }
@@ -95,6 +113,8 @@
     .enter:hover { box-shadow: 0 16px 36px rgba(124,92,255,0.45); }
     .bye-screen {
       display: none;
+      position: relative;
+      z-index: 1;
       text-align: center;
       color: var(--muted);
       font-size: 18px;
@@ -104,6 +124,7 @@
   </style>
 </head>
 <body>
+  <div id="bg-words" aria-hidden="true"></div>
   <div class="wrap">
     <div class="hero" id="hero">
       <div class="badge">PRIVATE DASH</div>
@@ -121,9 +142,71 @@
     document.getElementById('btnBye').addEventListener('click', function () {
       document.getElementById('hero').classList.add('hide');
       document.getElementById('bye').classList.add('show');
-      // 尽量关闭标签页；打不开时就停在告别页
       try { window.close(); } catch (e) {}
     });
+
+    (function scatterWords() {
+      var phrases = [
+        '卧槽', '太牛逼了', '夯爆了', '非常好看', '点赞',
+        '绝了', '好顶赞', 'YYDS', '牛批', '冲冲冲',
+        '爱了', '哇塞', '太强了', '炸裂', '妙啊',
+        '好看', '真香', '起飞', '稳了', '无敌',
+        '震撼', '绝绝子', '顶', '满分', '太会了'
+      ];
+      var colors = ['#c9d2ea', '#a78bfa', '#2ee6a6', '#7dd3fc', '#f9a8d4', '#fcd34d'];
+      var layer = document.getElementById('bg-words');
+      var W = window.innerWidth;
+      var H = window.innerHeight;
+      var placed = [];
+      var maxTry = 40;
+      var count = Math.min(80, Math.max(36, Math.floor((W * H) / 18000)));
+
+      function overlaps(a, b, pad) {
+        return !(
+          a.right + pad < b.left ||
+          a.left - pad > b.right ||
+          a.bottom + pad < b.top ||
+          a.top - pad > b.bottom
+        );
+      }
+
+      for (var i = 0; i < count; i++) {
+        var text = phrases[Math.floor(Math.random() * phrases.length)];
+        var size = 14 + Math.random() * 42;
+        var rot = (Math.random() * 50 - 25);
+        var el = document.createElement('span');
+        el.textContent = text;
+        el.style.fontSize = size + 'px';
+        el.style.color = colors[Math.floor(Math.random() * colors.length)];
+        el.style.opacity = String(0.10 + Math.random() * 0.18);
+        el.style.visibility = 'hidden';
+        layer.appendChild(el);
+
+        var ok = false;
+        for (var t = 0; t < maxTry; t++) {
+          var x = Math.random() * W;
+          var y = Math.random() * H;
+          el.style.left = x + 'px';
+          el.style.top = y + 'px';
+          el.style.transform = 'translate(-50%, -50%) rotate(' + rot + 'deg)';
+          var r = el.getBoundingClientRect();
+          // keep mostly on screen
+          if (r.left < 4 || r.top < 4 || r.right > W - 4 || r.bottom > H - 4) continue;
+          var box = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+          var clash = false;
+          for (var j = 0; j < placed.length; j++) {
+            if (overlaps(box, placed[j], 8)) { clash = true; break; }
+          }
+          if (!clash) {
+            placed.push(box);
+            el.style.visibility = 'visible';
+            ok = true;
+            break;
+          }
+        }
+        if (!ok) layer.removeChild(el);
+      }
+    })();
   </script>
 </body>
 </html>
