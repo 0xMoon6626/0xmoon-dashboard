@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- build:row5-20261014-1927 -->
+  <!-- build:htx-20261014-1955 -->
   <title>0xMoon专用数据看板</title>
   <style>
     :root {
@@ -169,7 +169,6 @@
       gap: 12px;
       width: 100%;
     }
-    /* 窄屏也保持一行，横向滑动，不再折成两行 */
     @media (max-width: 900px) {
       .hero-grid {
         grid-template-columns: repeat(5, minmax(150px, 1fr));
@@ -263,13 +262,13 @@
     }
     tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: rgba(255,255,255,0.03); }
-    tr.binance-row td {
+    tr.highlight-row td {
       background: rgba(124,92,255,0.12);
       border-top: 1px solid rgba(124,92,255,0.35);
       border-bottom: 1px solid rgba(124,92,255,0.35);
       font-weight: 700;
     }
-    tr.binance-row td:first-child {
+    tr.highlight-row td:first-child {
       box-shadow: inset 3px 0 0 var(--accent);
     }
     .rank {
@@ -320,7 +319,10 @@
       <div class="status" id="binance-status">加载 DefiLlama 数据中…</div>
       <div id="binance-content" hidden></div>
     </section>
-    <section class="panel" id="panel-htx" role="tabpanel"></section>
+    <section class="panel" id="panel-htx" role="tabpanel">
+      <div class="status" id="htx-status">加载 DefiLlama 数据中…</div>
+      <div id="htx-content" hidden></div>
+    </section>
     <section class="panel" id="panel-bnb" role="tabpanel"></section>
     <section class="panel" id="panel-tron" role="tabpanel"></section>
   </main>
@@ -374,20 +376,25 @@
       return { text: text, cls: cls };
     }
 
-    function fmtLev(n) {
-      if (n == null || !isFinite(n)) return '—';
-      return n.toFixed(2) + 'x';
-    }
-
-    function isBinance(c) {
+    function matchKeys(c, keys) {
       var name = (c.name || '').toLowerCase();
       var slug = (c.slug || '').toLowerCase();
-      return name === 'binance' || slug.indexOf('binance') === 0;
+      for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        if (name === k || name.indexOf(k) !== -1 || slug === k || slug.indexOf(k) !== -1) {
+          return true;
+        }
+      }
+      return false;
     }
 
-    function renderBinance(cexs) {
-      var status = document.getElementById('binance-status');
-      var content = document.getElementById('binance-content');
+    function isBinance(c) { return matchKeys(c, ['binance']); }
+    function isHtx(c) { return matchKeys(c, ['htx', 'huobi']); }
+
+    function renderCexPanel(opts, cexs) {
+      var status = document.getElementById(opts.panelId + '-status');
+      var content = document.getElementById(opts.panelId + '-content');
+      if (!status || !content) return;
 
       var ranked = cexs.slice().sort(function (a, b) {
         var av = a.cleanAssetsTvl != null ? a.cleanAssetsTvl : (a.currentTvl || 0);
@@ -395,24 +402,31 @@
         return bv - av;
       });
 
-      var binance = null;
+      var target = null;
+      var targetRank = -1;
       for (var i = 0; i < ranked.length; i++) {
-        if (isBinance(ranked[i])) { binance = ranked[i]; break; }
+        if (opts.match(ranked[i])) {
+          target = ranked[i];
+          targetRank = i + 1;
+          break;
+        }
       }
-      if (!binance) {
+      if (!target) {
+        status.hidden = false;
         status.className = 'status error';
-        status.innerHTML = '未找到币安数据。请查看 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a>';
+        status.innerHTML = '未找到' + opts.titleZh + '数据。请查看 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a>';
+        content.hidden = true;
         return;
       }
 
       var top = ranked.slice(0, 15);
-      var i24 = fmtInflow(binance.inflows_24h);
-      var i7 = fmtInflow(binance.inflows_1w);
-      var i30 = fmtInflow(binance.inflows_1m);
-      var binanceUrl = binance.url || 'https://www.binance.com';
+      var i24 = fmtInflow(target.inflows_24h);
+      var i7 = fmtInflow(target.inflows_1w);
+      var i30 = fmtInflow(target.inflows_1m);
+      var siteUrl = target.url || opts.fallbackUrl || '#';
 
       var rows = top.map(function (c, idx) {
-        var highlight = isBinance(c);
+        var highlight = opts.match(c);
         var f24 = fmtInflow(c.inflows_24h);
         var f7 = fmtInflow(c.inflows_1w);
         var f30 = fmtInflow(c.inflows_1m);
@@ -420,9 +434,9 @@
           ? '<a href="' + c.url + '" target="_blank" rel="noopener">' + (c.name || '—') + '</a>'
           : (c.name || '—');
         return (
-          '<tr class="' + (highlight ? 'binance-row' : '') + '">' +
+          '<tr class="' + (highlight ? 'highlight-row' : '') + '">' +
             '<td><span class="rank' + (idx === 0 ? ' top' : '') + '">' + (idx + 1) + '</span></td>' +
-            '<td><div class="name-cell">' + nameHtml + (highlight ? ' <span class="badge">币安</span>' : '') + '</div></td>' +
+            '<td><div class="name-cell">' + nameHtml + (highlight ? ' <span class="badge">' + opts.badge + '</span>' : '') + '</div></td>' +
             '<td>' + fmtUsd(c.currentTvl) + '</td>' +
             '<td>' + fmtUsd(c.cleanAssetsTvl) + '</td>' +
             '<td class="' + f24.cls + '">' + f24.text + '</td>' +
@@ -439,35 +453,37 @@
         '<article class="hero">' +
           '<div class="hero-top">' +
             '<div class="hero-title">' +
-              '<span class="badge">#1</span>' +
+              '<span class="badge">#' + targetRank + '</span>' +
               '<div>' +
-                '<div class="hero-name">币安 · Binance</div>' +
+                '<div class="hero-name">' + opts.titleZh + ' · ' + opts.titleEn + '</div>' +
                 '<div class="hero-sub">DefiLlama 储备与交易数据</div>' +
               '</div>' +
             '</div>' +
             '<div class="hero-links">' +
               '<a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama ↗</a>' +
-              '<a href="' + binanceUrl + '" target="_blank" rel="noopener">币安官网 ↗</a>' +
+              (siteUrl && siteUrl !== '#'
+                ? '<a href="' + siteUrl + '" target="_blank" rel="noopener">' + opts.siteLabel + ' ↗</a>'
+                : '') +
             '</div>' +
           '</div>' +
           '<div class="hero-grid">' +
-            '<div class="metric"><div class="label">资产</div><div class="value">' + fmtUsd(binance.currentTvl) + '</div></div>' +
-            '<div class="metric"><div class="label">净资产</div><div class="value">' + fmtUsd(binance.cleanAssetsTvl) + '</div></div>' +
-            '<div class="metric"><div class="label">现货成交量</div><div class="value sm">' + fmtUsd(binance.spotVolume) + '</div></div>' +
-            '<div class="metric"><div class="label">合约成交量</div><div class="value sm">' + fmtUsd(binance.derivVolume) + '</div></div>' +
-            '<div class="metric"><div class="label">合约持仓</div><div class="value sm">' + fmtUsd(binance.oi) + '</div></div>' +
+            '<div class="metric"><div class="label">资产</div><div class="value">' + fmtUsd(target.currentTvl) + '</div></div>' +
+            '<div class="metric"><div class="label">净资产</div><div class="value">' + fmtUsd(target.cleanAssetsTvl) + '</div></div>' +
+            '<div class="metric"><div class="label">现货成交量</div><div class="value sm">' + fmtUsd(target.spotVolume) + '</div></div>' +
+            '<div class="metric"><div class="label">合约成交量</div><div class="value sm">' + fmtUsd(target.derivVolume) + '</div></div>' +
+            '<div class="metric"><div class="label">合约持仓</div><div class="value sm">' + fmtUsd(target.oi) + '</div></div>' +
           '</div>' +
           '<div class="chips">' +
-            '<span class="chip ' + i24.cls + '">24h流入 ' + i24.text + '</span>' +
-            '<span class="chip ' + i7.cls + '">7d流入 ' + i7.text + '</span>' +
-            '<span class="chip ' + i30.cls + '">30d流入 ' + i30.text + '</span>' +
+            '<span class="chip ' + i24.cls + '">24小时流入 ' + i24.text + '</span>' +
+            '<span class="chip ' + i7.cls + '">7日流入 ' + i7.text + '</span>' +
+            '<span class="chip ' + i30.cls + '">30日流入 ' + i30.text + '</span>' +
           '</div>' +
         '</article>' +
         '<div class="table-wrap">' +
           '<table>' +
             '<thead><tr>' +
               '<th>#</th><th>交易所</th><th>资产</th><th>净资产</th>' +
-              '<th>24h 流入</th><th>7日流入</th><th>30日流入</th>' +
+              '<th>24h流入</th><th>7日流入</th><th>30日流入</th>' +
               '<th>现货成交量</th><th>合约成交量</th><th>合约持仓</th>' +
             '</tr></thead>' +
             '<tbody>' + rows + '</tbody>' +
@@ -479,14 +495,51 @@
       content.hidden = false;
     }
 
+    var PANEL_BINANCE = {
+      panelId: 'binance',
+      match: isBinance,
+      titleZh: '币安',
+      titleEn: 'Binance',
+      badge: '币安',
+      siteLabel: '币安官网',
+      fallbackUrl: 'https://www.binance.com'
+    };
+
+    var PANEL_HTX = {
+      panelId: 'htx',
+      match: isHtx,
+      titleZh: '火币',
+      titleEn: 'HTX',
+      badge: '火币',
+      siteLabel: '火币官网',
+      fallbackUrl: 'https://www.htx.com/'
+    };
+
     var CEX_SNAPSHOT = {"updatedAt":"2026-10-14T19:19:00+08:00","cexs":[{"name":"Binance","slug":"Binance-CEX","url":"https://www.binance.com","currentTvl":172105395687.82086,"cleanAssetsTvl":145669752880.1529,"inflows_24h":-66480975.96991153,"inflows_1w":809699754.4874631,"inflows_1m":-1009163406.1903234,"spotVolume":9378217047.965311,"oi":33389273839.954994,"derivVolume":53635367064.06354,"leverage":0.22921212660685575},{"name":"OKX","slug":"okx","url":"https://www.okx.com","currentTvl":31298417247.349106,"cleanAssetsTvl":29790383221.129265,"inflows_24h":64323809.56818946,"inflows_1w":299403360.04150677,"inflows_1m":353806104.2222528,"spotVolume":1712377884.048012,"oi":7722735750.48297,"derivVolume":18173227036.92973,"leverage":0.2592358645794629},{"name":"Bybit","slug":"Bybit","url":"https://www.bybit.com","currentTvl":15975419055.71994,"cleanAssetsTvl":15382943743.180683,"inflows_24h":84705501.10997519,"inflows_1w":-210992982.33444878,"inflows_1m":1329401230.219216,"spotVolume":1630260119.8253858,"oi":13072095208.202927,"derivVolume":10944721227.397266,"leverage":0.8497785226574618},{"name":"Bitfinex","slug":"bitfinex","url":"https://www.bitfinex.com","currentTvl":21163090439.836647,"cleanAssetsTvl":15261592085.139957,"inflows_24h":100112529.06558914,"inflows_1w":604779482.3976963,"inflows_1m":1366978589.5049167,"spotVolume":358865018.734525,"oi":871510157.9363481,"derivVolume":56945164.416057095,"leverage":0.05710479962211333},{"name":"Robinhood","slug":"robinhood","url":"https://robinhood.com","currentTvl":15132768936.664324,"cleanAssetsTvl":15132768936.664324,"inflows_24h":-3458172.613511563,"inflows_1w":-3458445.375801308,"inflows_1m":-3333664.1147736665,"spotVolume":null,"oi":null,"derivVolume":null,"leverage":null},{"name":"Gate","slug":"Gate","url":"https://www.gate.com","currentTvl":7406714754.231501,"cleanAssetsTvl":6210241649.852731,"inflows_24h":54428808.1882147,"inflows_1w":43520735.58078652,"inflows_1m":119397911.83282302,"spotVolume":1474943754.878484,"oi":13507032424.94961,"derivVolume":10310236439.190529,"leverage":2.174960844763571},{"name":"Bitget","slug":"bitget","url":"https://www.bitget.com","currentTvl":6231762466.293937,"cleanAssetsTvl":5741713448.144603,"inflows_24h":25845864.971884433,"inflows_1w":-14868667.015319463,"inflows_1m":369547731.53462565,"spotVolume":731165297.4692506,"oi":8445654438.112312,"derivVolume":6665536357.559503,"leverage":1.4709292817184163},{"name":"Gemini","slug":"gemini","url":"https://www.gemini.com","currentTvl":5560421394.268951,"cleanAssetsTvl":5560421394.268951,"inflows_24h":8603605.73238256,"inflows_1w":11778128.53003117,"inflows_1m":-4163034.4522709353,"spotVolume":57685295.24328773,"oi":null,"derivVolume":null,"leverage":null},{"name":"MEXC","slug":"mexc","url":"https://www.mexc.com","currentTvl":5411486030.2516575,"cleanAssetsTvl":4776037566.071438,"inflows_24h":8180224.9131773375,"inflows_1w":16767675.07742615,"inflows_1m":-34290461.896440126,"spotVolume":1013865286.056506,"oi":12693721459.116158,"derivVolume":9921167696.681715,"leverage":2.6577934707405295},{"name":"Bitstamp","slug":"bitstamp","url":"https://www.bitstamp.net","currentTvl":4763032587.348976,"cleanAssetsTvl":4763032587.348976,"inflows_24h":1808259.279127325,"inflows_1w":1194604938.8703678,"inflows_1m":-85737140.57128125,"spotVolume":310381968.3399831,"oi":null,"derivVolume":null,"leverage":null},{"name":"HTX","slug":"htx","url":"https://www.htx.com/","currentTvl":4180704572.6517205,"cleanAssetsTvl":4167148134.2805266,"inflows_24h":4328876.530032365,"inflows_1w":-3298094.80463367,"inflows_1m":-25489787.817619782,"spotVolume":848536633.8497604,"oi":2491570896.997703,"derivVolume":983324023.1517255,"leverage":0.5979079256868995},{"name":"Deribit","slug":"deribit","url":"https://www.deribit.com","currentTvl":3952642512.1478457,"cleanAssetsTvl":3952642512.1478457,"inflows_24h":11645110.184885914,"inflows_1w":-18249429.775053393,"inflows_1m":-1524341507.876649,"spotVolume":752518549.1176592,"oi":2260799865.618703,"derivVolume":9459468464.671186,"leverage":0.5719717527376883},{"name":"KuCoin","slug":"kucoin","url":"https://www.kucoin.com","currentTvl":3374139253.043782,"cleanAssetsTvl":2851266173.200328,"inflows_24h":-24694971.54059941,"inflows_1w":-82383365.16905686,"inflows_1m":-33826770.33927699,"spotVolume":1261916896.871387,"oi":3119837104.937737,"derivVolume":2130351880.7702315,"leverage":1.0941935671463316},{"name":"Crypto.com","slug":"Crypto-com","url":"https://crypto.com","currentTvl":2478731429.293106,"cleanAssetsTvl":2473502817.0239024,"inflows_24h":14258249.99856362,"inflows_1w":-14422279.55997716,"inflows_1m":-18991671.287608117,"spotVolume":644232648.472993,"oi":1835778448.6981976,"derivVolume":441587388.7703297,"leverage":0.7421776260222702},{"name":"HashKey Exchange","slug":"hashkey-exchange","url":"https://www.hashkey.com","currentTvl":1590816325.5877783,"cleanAssetsTvl":1590816325.5877783,"inflows_24h":-7628714.050054825,"inflows_1w":-43513910.799747765,"inflows_1m":-94795086.69005892,"spotVolume":null,"oi":null,"derivVolume":null,"leverage":null},{"name":"Bitkub","slug":"bitkub","url":"https://www.bitkub.com/","currentTvl":1533916472.4948068,"cleanAssetsTvl":1533916472.4948068,"inflows_24h":2838391.16861372,"inflows_1w":11126714.428442769,"inflows_1m":12792932.235581065,"spotVolume":29279612.671412926,"oi":null,"derivVolume":null,"leverage":null},{"name":"Poloniex","slug":"poloniex","url":"https://www.poloniex.com/","currentTvl":1274790631.237448,"cleanAssetsTvl":1274790631.237448,"inflows_24h":7810318.17445074,"inflows_1w":-374113548.85637295,"inflows_1m":-288983248.50868386,"spotVolume":705029440.3047835,"oi":null,"derivVolume":null,"leverage":null},{"name":"SwissBorg","slug":"swissborg","url":"https://swissborg.com","currentTvl":1062746331.8442903,"cleanAssetsTvl":921156454.1093974,"inflows_24h":652341.4215220134,"inflows_1w":-1375304.0029427856,"inflows_1m":1364091.080698498,"spotVolume":null,"oi":null,"derivVolume":null,"leverage":null},{"name":"OSL Exchange","slug":"osl-exchange","url":"https://www.osl.com/en","currentTvl":749132421.1364565,"cleanAssetsTvl":749132421.1364565,"inflows_24h":1878473.0485489734,"inflows_1w":-16217826.614184229,"inflows_1m":-32430881.717780937,"spotVolume":72750583.3653731,"oi":null,"derivVolume":null,"leverage":null},{"name":"Bitmex","slug":"bitmex","url":"https://www.bitmex.com","currentTvl":739684938.5335922,"cleanAssetsTvl":739684938.5335922,"inflows_24h":-850000.8789036707,"inflows_1w":3613020.138080981,"inflows_1m":-46436070.34756313,"spotVolume":null,"oi":0,"derivVolume":0,"leverage":0}]};
 
+    function applyFootnotes(sourceHtml) {
+      ['binance', 'htx'].forEach(function (id) {
+        var foot = document.querySelector('#' + id + '-content .footnote');
+        if (foot) foot.innerHTML = sourceHtml;
+      });
+    }
+
+    function renderAll(list) {
+      renderCexPanel(PANEL_BINANCE, list);
+      renderCexPanel(PANEL_HTX, list);
+    }
+
     function loadCexs() {
-      var status = document.getElementById('binance-status');
-      status.hidden = false;
-      status.className = 'status';
-      status.textContent = '正在从 DefiLlama API 拉取…';
-      document.getElementById('binance-content').hidden = true;
+      ['binance', 'htx'].forEach(function (id) {
+        var status = document.getElementById(id + '-status');
+        var content = document.getElementById(id + '-content');
+        if (status) {
+          status.hidden = false;
+          status.className = 'status';
+          status.textContent = '正在从 DefiLlama API 拉取…';
+        }
+        if (content) content.hidden = true;
+      });
 
       fetch('https://api.llama.fi/cexs')
         .then(function (r) {
@@ -496,24 +549,25 @@
         .then(function (data) {
           var list = (data && data.cexs) ? data.cexs : [];
           if (!list.length) throw new Error('empty');
-          renderBinance(list);
-          var foot = document.querySelector('#binance-content .footnote');
-          if (foot) {
-            foot.innerHTML = '数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a> · 实时 API';
-          }
+          renderAll(list);
+          applyFootnotes('数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a> · 实时 API');
         })
         .catch(function () {
-          // 网络不通时用内嵌快照兜底，避免空白
           if (CEX_SNAPSHOT && CEX_SNAPSHOT.cexs && CEX_SNAPSHOT.cexs.length) {
-            renderBinance(CEX_SNAPSHOT.cexs);
-            var foot = document.querySelector('#binance-content .footnote');
-            if (foot && CEX_SNAPSHOT.updatedAt) {
-              foot.innerHTML = '实时 API 暂时连不上，已显示快照 ' + CEX_SNAPSHOT.updatedAt + ' · 来源 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a>';
-            }
+            renderAll(CEX_SNAPSHOT.cexs);
+            var snapNote = CEX_SNAPSHOT.updatedAt
+              ? '实时 API 暂时连不上，已显示快照 ' + CEX_SNAPSHOT.updatedAt + ' · 来源 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a>'
+              : '实时 API 暂时连不上，已显示快照 · 来源 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a>';
+            applyFootnotes(snapNote);
             return;
           }
-          status.className = 'status error';
-          status.innerHTML = 'API 加载失败。请检查是否能访问 <a href="https://api.llama.fi/cexs" target="_blank" rel="noopener">api.llama.fi</a>，或打开 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a>';
+          ['binance', 'htx'].forEach(function (id) {
+            var status = document.getElementById(id + '-status');
+            if (status) {
+              status.className = 'status error';
+              status.innerHTML = 'API 加载失败。请检查是否能访问 <a href="https://api.llama.fi/cexs" target="_blank" rel="noopener">api.llama.fi</a>，或打开 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama</a>';
+            }
+          });
         });
     }
 
