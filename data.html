@@ -3,64 +3,628 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>谢了也没用，乖儿子</title>
+  <title>谢了也没用，乖儿子 · 0xMoon</title>
   <style>
     :root {
       --bg: #07080d;
       --fg: #f4f6fb;
       --muted: #9aa3b5;
       --accent: #7c5cff;
+      --accent2: #2ee6a6;
+      --down: #ff6b8a;
       --border: rgba(255,255,255,0.1);
+      --card: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(12,14,22,0.75));
     }
     * { box-sizing: border-box; }
     html, body {
-      margin: 0; height: 100%;
+      margin: 0;
+      min-height: 100%;
       font-family: "SF Pro Display", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
       background:
-        radial-gradient(1200px 600px at 50% -10%, rgba(124,92,255,0.25), transparent 60%),
-        radial-gradient(800px 400px at 20% 100%, rgba(46,230,166,0.1), transparent 50%),
+        radial-gradient(1200px 600px at 50% -10%, rgba(124,92,255,0.22), transparent 60%),
+        radial-gradient(800px 400px at 85% 110%, rgba(46,230,166,0.10), transparent 50%),
         var(--bg);
       color: var(--fg);
     }
-    .wrap {
-      min-height: 100%;
+    a { color: inherit; text-decoration: none; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(7,8,13,0.78);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 20px 0;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 20px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 12px 20px;
     }
-    .hero {
-      width: min(720px, 100%);
-      text-align: center;
-      padding: 56px 28px;
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      backdrop-filter: blur(16px);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding-bottom: 12px;
+      min-width: 140px;
     }
-    h1 {
-      margin: 0 0 28px;
-      font-size: clamp(28px, 6vw, 48px);
-      line-height: 1.2;
+    .brand .back {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .brand .back:hover { color: var(--accent2); }
+    .brand .title {
+      font-size: 15px;
+      font-weight: 700;
       letter-spacing: 0.02em;
+    }
+    .brand .sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .tabs {
+      display: flex;
+      flex: 1;
+      gap: 4px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 0;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 16px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: color .15s ease, border-color .15s ease;
+    }
+    .tab:hover { color: var(--fg); }
+    .tab.active {
+      color: var(--fg);
+      border-bottom-color: var(--accent);
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 20px 64px;
+    }
+    .panel { display: none; animation: fade .22s ease; }
+    .panel.active { display: block; }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 10px 16px;
+      margin-bottom: 20px;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(22px, 4vw, 28px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .section-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 560px;
+    }
+    .snap {
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .card {
+      grid-column: span 4;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+      min-width: 0;
+    }
+    .card.span-6 { grid-column: span 6; }
+    .card.span-8 { grid-column: span 8; }
+    .card.span-12 { grid-column: span 12; }
+    .card .label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
       font-weight: 700;
     }
-    a {
+    .card .desc {
+      margin: 0;
       color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      border-bottom: 1px solid transparent;
+      font-size: 13px;
+      line-height: 1.55;
     }
-    a:hover { color: var(--fg); border-bottom-color: var(--accent); }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .chip {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-width: 88px;
+      background: rgba(255,255,255,0.03);
+    }
+    .chip .k { font-size: 11px; color: var(--muted); }
+    .chip .v { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .up { color: var(--accent2); }
+    .down { color: var(--down); }
+    .flat { color: var(--fg); }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .bar-row .name {
+      width: 52px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #4f7cff);
+    }
+    .bar-fill.green { background: linear-gradient(90deg, #1aa873, var(--accent2)); }
+    .bar-fill.red { background: linear-gradient(90deg, #c43d5c, var(--down)); }
+    .bar-row .pct {
+      width: 64px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--fg);
+      background: rgba(124,92,255,0.12);
+    }
+    .tag.soft { background: rgba(255,255,255,0.04); color: var(--muted); }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .table th, .table td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .table th { color: var(--muted); font-weight: 500; font-size: 12px; }
+    .table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .table th.num { text-align: right; }
+    .pending {
+      display: inline-block;
+      font-size: 11px;
+      color: #fcd34d;
+      border: 1px solid rgba(252,211,77,0.35);
+      border-radius: 999px;
+      padding: 2px 8px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .card, .card.span-6, .card.span-8 { grid-column: span 6; }
+      .card.span-12 { grid-column: span 12; }
+    }
+    @media (max-width: 620px) {
+      .card, .card.span-6, .card.span-8, .card.span-12 { grid-column: span 12; }
+      .topbar-inner { padding-top: 12px; }
+      .brand { width: 100%; padding-bottom: 4px; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <h1>谢了也没用，乖儿子</h1>
-      <a href="index.html">← 回首页</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <a class="back" href="index.html">← 回首页</a>
+        <div class="title">谢了也没用，乖儿子</div>
+        <div class="sub">0xMoon 私有数据页</div>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="数据分区">
+        <button class="tab active" type="button" role="tab" data-tab="binance" aria-selected="true">币安</button>
+        <button class="tab" type="button" role="tab" data-tab="htx" aria-selected="false">火币</button>
+        <button class="tab" type="button" role="tab" data-tab="bnb" aria-selected="false">BNB Chain</button>
+        <button class="tab" type="button" role="tab" data-tab="tron" aria-selected="false">TRON</button>
+      </nav>
     </div>
-  </div>
+  </header>
+
+  <main class="page">
+    <!-- 币安 -->
+    <section class="panel active" id="panel-binance" role="tabpanel">
+      <div class="section-head">
+        <div>
+          <h2>币安 · Binance 观察台</h2>
+          <p>盯 CZ / 何一 / 币安生态动向；BNB Chain 指数作底仓参考，上币与成交待接实时。</p>
+        </div>
+        <div class="snap">快照 2026-10-14 17:53 CST</div>
+      </div>
+      <div class="grid">
+        <div class="card span-6">
+          <div class="label">BNB Chain 生态指数</div>
+          <h3>等权 · CoinGecko</h3>
+          <p class="desc">成分：BNB、CAKE、XVS、LISTA（已去掉 THE/SKY/KMNO）</p>
+          <div class="chips">
+            <div class="chip"><span class="k">7日</span><span class="v down">-2.52%</span></div>
+            <div class="chip"><span class="k">30日</span><span class="v up">+0.60%</span></div>
+            <div class="chip"><span class="k">365日</span><span class="v down">-47.23%</span></div>
+          </div>
+        </div>
+        <div class="card span-6">
+          <div class="label">观察范围</div>
+          <h3>币安 / CZ / 何一</h3>
+          <p class="desc">私有看板：交易所叙事、上币节奏、公关与监管噪音，筛「能动手」的信号。</p>
+          <div class="tags">
+            <span class="tag">上币日历</span>
+            <span class="tag">现货/合约量</span>
+            <span class="tag">Launchpad</span>
+            <span class="tag soft">CZ 动态</span>
+            <span class="tag soft">何一</span>
+          </div>
+        </div>
+        <div class="card span-12">
+          <div class="label">实时模块</div>
+          <h3>上币 / 成交 / 催化剂 <span class="pending">待接入实时</span></h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>模块</th>
+                <th>说明</th>
+                <th class="num">状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>新币 / Seed Tag</td>
+                <td>币安现货与 Alpha 上币、标签变更</td>
+                <td class="num"><span class="pending">待接入</span></td>
+              </tr>
+              <tr>
+                <td>24h 成交额 Top</td>
+                <td>现货 + 合约热度榜，筛异常放量</td>
+                <td class="num"><span class="pending">待接入</span></td>
+              </tr>
+              <tr>
+                <td>催化剂看板</td>
+                <td>公告、解禁、产品上线、监管窗口</td>
+                <td class="num"><span class="pending">待接入</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="note">底仓参考用 BNB Chain 指数；实时层接上后再把「能动手」的条目顶上来。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 火币 -->
+    <section class="panel" id="panel-htx" role="tabpanel" hidden>
+      <div class="section-head">
+        <div>
+          <h2>火币 · HTX 观察块</h2>
+          <p>HTX（原火币）产品、上币、成交与合作动态——单独一块，别跟币安混着看。</p>
+        </div>
+        <div class="snap">结构已就位 · 数据待接入</div>
+      </div>
+      <div class="grid">
+        <div class="card span-6">
+          <div class="label">产品线</div>
+          <h3>现货 / 合约 / 理财 <span class="pending">待接入实时</span></h3>
+          <p class="desc">产品上新、费率调整、活动页与 HTX 品牌动作，先占坑成表。</p>
+          <div class="tags">
+            <span class="tag soft">现货</span>
+            <span class="tag soft">合约</span>
+            <span class="tag soft">Earn</span>
+            <span class="tag soft">活动</span>
+          </div>
+        </div>
+        <div class="card span-6">
+          <div class="label">上币 &amp; 成交</div>
+          <h3>Listings / Volume <span class="pending">待接入实时</span></h3>
+          <p class="desc">新币、交易对、24h 成交异常。和币安榜对照看「谁在抢流动性」。</p>
+          <div class="chips">
+            <div class="chip"><span class="k">今日上币</span><span class="v flat">—</span></div>
+            <div class="chip"><span class="k">24h 量</span><span class="v flat">—</span></div>
+            <div class="chip"><span class="k">异常对</span><span class="v flat">—</span></div>
+          </div>
+        </div>
+        <div class="card span-12">
+          <div class="label">合作 / 生态</div>
+          <h3>Partnerships &amp; 叙事 <span class="pending">待接入实时</span></h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>关注点</th>
+                <th>备注</th>
+                <th class="num">状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>战略合作 / 公链联动</td>
+                <td>官方公告与媒体通稿抽关键信号</td>
+                <td class="num"><span class="pending">待接入</span></td>
+              </tr>
+              <tr>
+                <td>HTX DAO / 代币相关</td>
+                <td>治理、回购、激励口径变更</td>
+                <td class="num"><span class="pending">待接入</span></td>
+              </tr>
+              <tr>
+                <td>区域扩张</td>
+                <td>牌照、出入金、本地化产品</td>
+                <td class="num"><span class="pending">待接入</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="note">这是 HTX 专用观察块；有实时源后再把空行换成真数。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BNB Chain -->
+    <section class="panel" id="panel-bnb" role="tabpanel" hidden>
+      <div class="section-head">
+        <div>
+          <h2>BNB Chain 生态指数</h2>
+          <p>等权 CoinGecko；成分 BNB、CAKE、XVS、LISTA。快照 2026-10-14 17:53 CST。</p>
+        </div>
+        <div class="snap">快照 2026-10-14 17:53 CST</div>
+      </div>
+      <div class="grid">
+        <div class="card span-8">
+          <div class="label">指数表现</div>
+          <h3>7 / 30 / 365 日</h3>
+          <div class="chips">
+            <div class="chip"><span class="k">7日</span><span class="v down">-2.52%</span></div>
+            <div class="chip"><span class="k">30日</span><span class="v up">+0.60%</span></div>
+            <div class="chip"><span class="k">365日</span><span class="v down">-47.23%</span></div>
+          </div>
+          <div style="margin-top:16px">
+            <div class="bar-row">
+              <span class="name">7日</span>
+              <div class="bar-track"><div class="bar-fill red" style="width:25%"></div></div>
+              <span class="pct down">-2.52%</span>
+            </div>
+            <div class="bar-row">
+              <span class="name">30日</span>
+              <div class="bar-track"><div class="bar-fill green" style="width:6%"></div></div>
+              <span class="pct up">+0.60%</span>
+            </div>
+            <div class="bar-row">
+              <span class="name">365日</span>
+              <div class="bar-track"><div class="bar-fill red" style="width:90%"></div></div>
+              <span class="pct down">-47.23%</span>
+            </div>
+          </div>
+          <p class="note">柱宽按相对幅度示意，非严格比例轴；365 日回调最狠，30 日刚翻红。</p>
+        </div>
+        <div class="card span-4">
+          <div class="label">成分</div>
+          <h3>Constituents</h3>
+          <div class="tags" style="margin-top:4px">
+            <span class="tag">BNB</span>
+            <span class="tag">CAKE</span>
+            <span class="tag">XVS</span>
+            <span class="tag">LISTA</span>
+          </div>
+          <p class="desc" style="margin-top:14px">等权；已剔除 THE / SKY / KMNO。</p>
+        </div>
+        <div class="card span-6">
+          <div class="label">链上借贷锚点</div>
+          <h3>Venus (XVS)</h3>
+          <p class="desc">BNB 生态核心借贷。快照 2026-10-14 17:34 CST · DefiLlama + CoinGecko。</p>
+          <div class="chips">
+            <div class="chip"><span class="k">TVL</span><span class="v flat">$1.28B</span></div>
+            <div class="chip"><span class="k">流通市值</span><span class="v flat">$52.3M</span></div>
+            <div class="chip"><span class="k">TVL/MCap</span><span class="v up">24.5x</span></div>
+          </div>
+        </div>
+        <div class="card span-6">
+          <div class="label">待补模块</div>
+          <h3>DeFi / 稳定币 / 桥 <span class="pending">待接入实时</span></h3>
+          <p class="desc">Pancake 量能、Lista/稳定币供应、跨链桥净流入——源接上再填。</p>
+          <div class="tags">
+            <span class="tag soft">Pancake volume</span>
+            <span class="tag soft">稳定币供应</span>
+            <span class="tag soft">桥流入</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRON -->
+    <section class="panel" id="panel-tron" role="tabpanel" hidden>
+      <div class="section-head">
+        <div>
+          <h2>TRON 生态指数</h2>
+          <p>等权 CoinGecko；成分 TRX、SUN、JST、BTT、WIN。快照 2026-10-14 17:53 CST。</p>
+        </div>
+        <div class="snap">快照 2026-10-14 17:53 CST</div>
+      </div>
+      <div class="grid">
+        <div class="card span-8">
+          <div class="label">指数表现</div>
+          <h3>7 / 30 / 365 日</h3>
+          <div class="chips">
+            <div class="chip"><span class="k">7日</span><span class="v up">+1.54%</span></div>
+            <div class="chip"><span class="k">30日</span><span class="v up">+14.60%</span></div>
+            <div class="chip"><span class="k">365日</span><span class="v up">+65.12%</span></div>
+          </div>
+          <div style="margin-top:16px">
+            <div class="bar-row">
+              <span class="name">7日</span>
+              <div class="bar-track"><div class="bar-fill green" style="width:12%"></div></div>
+              <span class="pct up">+1.54%</span>
+            </div>
+            <div class="bar-row">
+              <span class="name">30日</span>
+              <div class="bar-track"><div class="bar-fill green" style="width:35%"></div></div>
+              <span class="pct up">+14.60%</span>
+            </div>
+            <div class="bar-row">
+              <span class="name">365日</span>
+              <div class="bar-track"><div class="bar-fill green" style="width:92%"></div></div>
+              <span class="pct up">+65.12%</span>
+            </div>
+          </div>
+          <p class="note">三档全绿；365 日领跑主流公链指数（同批修订成分口径）。</p>
+        </div>
+        <div class="card span-4">
+          <div class="label">成分</div>
+          <h3>Constituents</h3>
+          <div class="tags" style="margin-top:4px">
+            <span class="tag">TRX</span>
+            <span class="tag">SUN</span>
+            <span class="tag">JST</span>
+            <span class="tag">BTT</span>
+            <span class="tag">WIN</span>
+          </div>
+          <p class="desc" style="margin-top:14px">等权；TRON 生态核心票。</p>
+        </div>
+        <div class="card span-4">
+          <div class="label">借贷 / DAO</div>
+          <h3>JustLend / JustLend DAO</h3>
+          <p class="desc">TRON 主借贷与治理盘。TVL、JST 市值待接 DefiLlama / CG。</p>
+          <div class="chips">
+            <div class="chip"><span class="k">TVL</span><span class="v flat">—</span></div>
+            <div class="chip"><span class="k">JST</span><span class="v flat">—</span></div>
+          </div>
+          <p class="note"><span class="pending">待接入实时</span> 借贷主表暂无 JustLend 行，先占坑。</p>
+        </div>
+        <div class="card span-4">
+          <div class="label">稳定币</div>
+          <h3>USDD</h3>
+          <p class="desc">供应、Peg、链上流动性。和 TRON 稳定币叙事绑在一起看。</p>
+          <div class="chips">
+            <div class="chip"><span class="k">供应</span><span class="v flat">—</span></div>
+            <div class="chip"><span class="k">Peg</span><span class="v flat">—</span></div>
+          </div>
+          <p class="note"><span class="pending">待接入实时</span></p>
+        </div>
+        <div class="card span-4">
+          <div class="label">DEX / 生态票</div>
+          <h3>SUN</h3>
+          <p class="desc">SUN 在指数成分内；DEX 量能与激励政策单独盯。</p>
+          <div class="tags">
+            <span class="tag">指数成分</span>
+            <span class="tag soft">DEX volume 待接入</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll('.tab');
+      var panels = {
+        binance: document.getElementById('panel-binance'),
+        htx: document.getElementById('panel-htx'),
+        bnb: document.getElementById('panel-bnb'),
+        tron: document.getElementById('panel-tron')
+      };
+
+      function activate(id) {
+        tabs.forEach(function (t) {
+          var on = t.getAttribute('data-tab') === id;
+          t.classList.toggle('active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        Object.keys(panels).forEach(function (key) {
+          var p = panels[key];
+          var on = key === id;
+          p.classList.toggle('active', on);
+          if (on) p.removeAttribute('hidden');
+          else p.setAttribute('hidden', '');
+        });
+        try {
+          history.replaceState(null, '', '#' + id);
+        } catch (e) {}
+      }
+
+      tabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          activate(t.getAttribute('data-tab'));
+        });
+      });
+
+      var hash = (location.hash || '').replace(/^#/, '');
+      if (panels[hash]) activate(hash);
+      else activate('binance');
+    })();
+  </script>
 </body>
 </html>
