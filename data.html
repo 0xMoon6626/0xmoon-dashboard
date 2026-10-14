@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- build:bnb-subnav-20261014-2149 -->
+  <!-- build:bnb-official-bscscan-20261014-2158 -->
   <title>0xMoon专用数据看板</title>
   <style>
     :root {
@@ -367,6 +367,68 @@
       font-size: 16px;
       margin-bottom: 8px;
     }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 1000px) {
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .stat-grid { grid-template-columns: 1fr; }
+    }
+    a.stat-card {
+      display: block;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      transition: border-color .15s, background .15s, transform .15s;
+      min-height: 96px;
+    }
+    a.stat-card:hover {
+      border-color: rgba(124,92,255,0.5);
+      background: rgba(124,92,255,0.08);
+      transform: translateY(-1px);
+    }
+    .stat-card .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .stat-card .value {
+      font-size: 20px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      word-break: break-word;
+    }
+    .stat-card .meta {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .panel-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .panel-head h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .panel-head .sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -399,10 +461,8 @@
         <button class="subtab" type="button" data-sub="volume" role="tab" aria-selected="false">交易量数据</button>
       </nav>
       <div class="subpanel active" id="bnb-sub-official" role="tabpanel">
-        <div class="placeholder-card">
-          <strong>官方数据</strong>
-          占位区 · 后续接入 BNB Chain 官方链上 / 生态指标
-        </div>
+        <div id="bnb-official-status" class="status">加载 BscScan 官方数据中…</div>
+        <div id="bnb-official-content" hidden></div>
       </div>
       <div class="subpanel" id="bnb-sub-rwa" role="tabpanel">
         <div class="placeholder-card">
@@ -779,7 +839,104 @@
         });
     }
 
+var BSC_CHARTS_SNAPSHOT = {"updatedAt": "2026-10-14T21:57:23+0800", "source": "https://bscscan.com/charts", "bnbPrice": "$738.24", "bnbPriceChange": "(-0.35%)", "bnbPriceDir": "down", "marketCap": "$79,131,943,142.00", "metrics": [{"key": "Addresses (Total)", "value": "934,066,563", "change": "0.06%", "changeDir": "up", "tps": null, "note": null, "href": "https://bscscan.com/chart/address", "labelZh": "地址总数", "valueZh": "934,066,563"}, {"key": "Transactions (Total)", "value": "15,261.96 M", "change": null, "changeDir": "", "tps": "240.6", "note": null, "href": "https://bscscan.com/txs", "labelZh": "交易总数", "valueZh": "15,261.96 M"}, {"key": "New Addresses (24h)", "value": "541,601", "change": "13.65%", "changeDir": "down", "tps": null, "note": null, "href": "https://bscscan.com/chart/address", "labelZh": "新增地址（24小时）", "valueZh": "541,601"}, {"key": "Transactions (24h)", "value": "15,368,871", "change": "0.88%", "changeDir": "up", "tps": null, "note": null, "href": "https://bscscan.com/chart/tx", "labelZh": "交易笔数（24小时）", "valueZh": "15,368,871"}, {"key": "Tokens (Total)", "value": "13,466,838", "change": null, "changeDir": "", "tps": null, "note": null, "href": "https://bscscan.com/tokens", "labelZh": "代币总数", "valueZh": "13,466,838"}, {"key": "Pending Transactions (1h)", "value": "343", "change": null, "changeDir": "", "tps": null, "note": "平均", "href": "https://bscscan.com/chart/pendingtx", "labelZh": "待处理交易（1小时）", "valueZh": "343"}, {"key": "Total Transaction Fee (24h)", "value": "497.81 BNB", "change": "11.31%", "changeDir": "down", "tps": null, "note": null, "href": "https://bscscan.com/chart/transactionfee", "labelZh": "交易手续费合计（24小时）", "valueZh": "497.81 BNB"}, {"key": "Avg. Transaction Fee (24h)", "value": "0.02 USD", "change": "11.00%", "changeDir": "down", "tps": null, "note": null, "href": "https://bscscan.com/chart/avg-txfee-usd", "labelZh": "平均手续费（24小时）", "valueZh": "0.02 USD"}, {"key": "Contracts Deployed (Total)", "value": "58,428,514", "change": "0.15%", "changeDir": "up", "tps": null, "note": null, "href": "https://bscscan.com/chart/deployed-contracts", "labelZh": "已部署合约总数", "valueZh": "58,428,514"}, {"key": "Contracts Verified (Total)", "value": "1,733,276", "change": "0.04%", "changeDir": "up", "tps": null, "note": null, "href": "https://bscscan.com/chart/verified-contracts", "labelZh": "已验证合约总数", "valueZh": "1,733,276"}, {"key": "Contracts Deployed (24h)", "value": "86,571", "change": "20.01%", "changeDir": "down", "tps": null, "note": null, "href": "https://bscscan.com/chart/deployed-contracts", "labelZh": "新部署合约（24小时）", "valueZh": "86,571"}, {"key": "Contracts Verified (24h)", "value": "683", "change": "7.22%", "changeDir": "up", "tps": null, "note": null, "href": "https://bscscan.com/chart/verified-contracts", "labelZh": "新验证合约（24小时）", "valueZh": "683"}, {"key": "Total Gas Used (24h)", "value": "2,946,911.09 Million", "change": "0.81%", "changeDir": "up", "tps": null, "note": null, "href": "https://bscscan.com/chart/gasused", "labelZh": "Gas 消耗合计（24小时）", "valueZh": "2,946,911.09 百万"}, {"key": "Network Utilization (24H)", "value": "22.5%", "change": null, "changeDir": "", "tps": null, "note": null, "href": "https://bscscan.com/chart/networkutilization", "labelZh": "网络利用率（24小时）", "valueZh": "22.5%"}]};
+
+
+    function formatBscValueZh(v) {
+      if (v == null) return '—';
+      return String(v)
+        .replace(/Million/g, '百万')
+        .replace(/\bM\b/g, '百万')
+        .replace(/USD/g, '美元');
+    }
+
+    function renderBnbOfficial(data, sourceNote) {
+      var status = document.getElementById('bnb-official-status');
+      var content = document.getElementById('bnb-official-content');
+      if (!status || !content || !data || !data.metrics) return;
+
+      var priceCls = data.bnbPriceDir === 'up' ? 'up' : (data.bnbPriceDir === 'down' ? 'down' : '');
+      var priceChange = data.bnbPriceChange || '';
+      var cards = data.metrics.map(function (m) {
+        var metaParts = [];
+        if (m.tps) metaParts.push(m.tps + ' TPS');
+        if (m.note) metaParts.push(m.note);
+        if (m.change) {
+          var chCls = m.changeDir === 'up' ? 'up' : (m.changeDir === 'down' ? 'down' : '');
+          metaParts.push('<span class="' + chCls + '">' + (m.changeDir === 'up' ? '↑' : (m.changeDir === 'down' ? '↓' : '')) + m.change + '</span>');
+        }
+        var meta = metaParts.length ? '<div class="meta">' + metaParts.join(' · ') + '</div>' : '';
+        var href = m.href || 'https://bscscan.com/charts';
+        return (
+          '<a class="stat-card" href="' + href + '" target="_blank" rel="noopener">' +
+            '<div class="label">' + (m.labelZh || m.key) + '</div>' +
+            '<div class="value">' + formatBscValueZh(m.valueZh || m.value) + '</div>' +
+            meta +
+          '</a>'
+        );
+      }).join('');
+
+      content.innerHTML =
+        '<div class="panel-head">' +
+          '<div>' +
+            '<h2>BNB Chain 官方数据</h2>' +
+            '<div class="sub">中文面板 · 数据来自 BscScan Charts</div>' +
+          '</div>' +
+          '<div class="hero-links">' +
+            '<a href="https://bscscan.com/charts" target="_blank" rel="noopener">BscScan 图表 ↗</a>' +
+          '</div>' +
+        '</div>' +
+        '<article class="hero" style="margin-bottom:16px">' +
+          '<div class="hero-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">' +
+            '<div class="metric">' +
+              '<div class="label">BNB 价格</div>' +
+              '<div class="value">' + (data.bnbPrice || '—') +
+                (priceChange ? ' <span class="' + priceCls + '" style="font-size:14px;font-weight:600">' + priceChange + '</span>' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="metric">' +
+              '<div class="label">BNB 市值</div>' +
+              '<div class="value sm">' + (data.marketCap || '—') + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</article>' +
+        '<div class="stat-grid">' + cards + '</div>' +
+        '<p class="footnote">' + (sourceNote || ('数据来自 <a href="https://bscscan.com/charts" target="_blank" rel="noopener">BscScan Charts</a> · 快照 ' + (data.updatedAt || ''))) + '</p>';
+
+      status.hidden = true;
+      content.hidden = false;
+    }
+
+    function loadBnbOfficial() {
+      var status = document.getElementById('bnb-official-status');
+      if (status) {
+        status.hidden = false;
+        status.className = 'status';
+        status.textContent = '加载 BscScan 官方数据中…';
+      }
+      // same-origin snapshot first (can be refreshed independently), then embedded fallback
+      fetch('bsc-charts-snapshot.json?t=' + Date.now())
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          renderBnbOfficial(data, '数据来自 <a href="https://bscscan.com/charts" target="_blank" rel="noopener">BscScan Charts</a> · 中文面板 · 更新于 ' + (data.updatedAt || ''));
+        })
+        .catch(function () {
+          if (BSC_CHARTS_SNAPSHOT && BSC_CHARTS_SNAPSHOT.metrics) {
+            renderBnbOfficial(BSC_CHARTS_SNAPSHOT, '数据来自 <a href="https://bscscan.com/charts" target="_blank" rel="noopener">BscScan Charts</a> · 中文面板 · 内嵌快照 ' + (BSC_CHARTS_SNAPSHOT.updatedAt || ''));
+            return;
+          }
+          if (status) {
+            status.className = 'status error';
+            status.innerHTML = '官方数据加载失败。请打开 <a href="https://bscscan.com/charts" target="_blank" rel="noopener">BscScan Charts</a>';
+          }
+        });
+    }
+
     loadCexs();
+    loadBnbOfficial();
   </script>
 </body>
 </html>
