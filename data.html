@@ -299,6 +299,25 @@
       color: var(--muted);
     }
     .footnote a { color: var(--accent); }
+
+    .metric-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .metric-head .label { margin-bottom: 0; }
+    .metric-rank {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent);
+      border-radius: 999px;
+      padding: 2px 8px;
+      letter-spacing: 0.02em;
+    }
   </style>
 </head>
 <body>
@@ -391,6 +410,54 @@
     function isBinance(c) { return matchKeys(c, ['binance']); }
     function isHtx(c) { return matchKeys(c, ['htx', 'huobi']); }
 
+    function fieldVal(c, key) {
+      var v = c[key];
+      return (v == null || !isFinite(v)) ? null : v;
+    }
+
+    function rankByField(cexs, key, target) {
+      var scored = [];
+      for (var i = 0; i < cexs.length; i++) {
+        var v = fieldVal(cexs[i], key);
+        if (v == null) continue;
+        scored.push({ c: cexs[i], v: v });
+      }
+      scored.sort(function (a, b) { return b.v - a.v; });
+      for (var j = 0; j < scored.length; j++) {
+        if (scored[j].c === target || (target && scored[j].c.name === target.name && scored[j].c.slug === target.slug)) {
+          return j + 1;
+        }
+      }
+      // identity fallback via match
+      return null;
+    }
+
+    function rankByFieldMatch(cexs, key, matchFn) {
+      var scored = [];
+      for (var i = 0; i < cexs.length; i++) {
+        var v = fieldVal(cexs[i], key);
+        if (v == null) continue;
+        scored.push({ c: cexs[i], v: v });
+      }
+      scored.sort(function (a, b) { return b.v - a.v; });
+      for (var j = 0; j < scored.length; j++) {
+        if (matchFn(scored[j].c)) return j + 1;
+      }
+      return null;
+    }
+
+    function metricHtml(label, valueHtml, rank) {
+      var rankHtml = rank != null
+        ? '<span class="metric-rank">第' + rank + '名</span>'
+        : '<span class="metric-rank" style="opacity:.45">—</span>';
+      return (
+        '<div class="metric">' +
+          '<div class="metric-head"><div class="label">' + label + '</div>' + rankHtml + '</div>' +
+          '<div class="value' + (label === '资产' || label === '净资产' ? '' : ' sm') + '">' + valueHtml + '</div>' +
+        '</div>'
+      );
+    }
+
     function renderCexPanel(opts, cexs) {
       var status = document.getElementById(opts.panelId + '-status');
       var content = document.getElementById(opts.panelId + '-content');
@@ -401,6 +468,11 @@
         var bv = b.cleanAssetsTvl != null ? b.cleanAssetsTvl : (b.currentTvl || 0);
         return bv - av;
       });
+
+      var trueRankMap = {};
+      for (var ri = 0; ri < ranked.length; ri++) {
+        trueRankMap[ranked[ri].name + '|' + (ranked[ri].slug || '')] = ri + 1;
+      }
 
       var target = null;
       var targetRank = -1;
@@ -420,10 +492,22 @@
       }
 
       var top = ranked.slice(0, 15);
+      if (opts.pinTop) {
+        top = top.filter(function (c) { return !opts.match(c); });
+        top.unshift(target);
+        if (top.length > 15) top = top.slice(0, 15);
+      }
+
       var i24 = fmtInflow(target.inflows_24h);
       var i7 = fmtInflow(target.inflows_1w);
       var i30 = fmtInflow(target.inflows_1m);
       var siteUrl = target.url || opts.fallbackUrl || '#';
+
+      var rAssets = rankByFieldMatch(cexs, 'currentTvl', opts.match);
+      var rClean = rankByFieldMatch(cexs, 'cleanAssetsTvl', opts.match);
+      var rSpot = rankByFieldMatch(cexs, 'spotVolume', opts.match);
+      var rDeriv = rankByFieldMatch(cexs, 'derivVolume', opts.match);
+      var rOi = rankByFieldMatch(cexs, 'oi', opts.match);
 
       var rows = top.map(function (c, idx) {
         var highlight = opts.match(c);
@@ -433,9 +517,12 @@
         var nameHtml = c.url
           ? '<a href="' + c.url + '" target="_blank" rel="noopener">' + (c.name || '—') + '</a>'
           : (c.name || '—');
+        var trueRank = trueRankMap[c.name + '|' + (c.slug || '')] || (idx + 1);
+        var displayRank = opts.pinTop ? (idx + 1) : trueRank;
+        var rankClass = 'rank' + ((opts.pinTop ? idx === 0 : trueRank === 1) ? ' top' : '');
         return (
           '<tr class="' + (highlight ? 'highlight-row' : '') + '">' +
-            '<td><span class="rank' + (idx === 0 ? ' top' : '') + '">' + (idx + 1) + '</span></td>' +
+            '<td><span class="' + rankClass + '">' + displayRank + '</span></td>' +
             '<td><div class="name-cell">' + nameHtml + (highlight ? ' <span class="badge">' + opts.badge + '</span>' : '') + '</div></td>' +
             '<td>' + fmtUsd(c.currentTvl) + '</td>' +
             '<td>' + fmtUsd(c.cleanAssetsTvl) + '</td>' +
@@ -449,11 +536,15 @@
         );
       }).join('');
 
+      var heroBadge = opts.pinTop
+        ? '#' + targetRank + ' · 榜单置顶'
+        : '#' + targetRank;
+
       content.innerHTML =
         '<article class="hero">' +
           '<div class="hero-top">' +
             '<div class="hero-title">' +
-              '<span class="badge">#' + targetRank + '</span>' +
+              '<span class="badge">' + heroBadge + '</span>' +
               '<div>' +
                 '<div class="hero-name">' + opts.titleZh + ' · ' + opts.titleEn + '</div>' +
                 '<div class="hero-sub">DefiLlama 储备与交易数据</div>' +
@@ -467,11 +558,11 @@
             '</div>' +
           '</div>' +
           '<div class="hero-grid">' +
-            '<div class="metric"><div class="label">资产</div><div class="value">' + fmtUsd(target.currentTvl) + '</div></div>' +
-            '<div class="metric"><div class="label">净资产</div><div class="value">' + fmtUsd(target.cleanAssetsTvl) + '</div></div>' +
-            '<div class="metric"><div class="label">现货成交量</div><div class="value sm">' + fmtUsd(target.spotVolume) + '</div></div>' +
-            '<div class="metric"><div class="label">合约成交量</div><div class="value sm">' + fmtUsd(target.derivVolume) + '</div></div>' +
-            '<div class="metric"><div class="label">合约持仓</div><div class="value sm">' + fmtUsd(target.oi) + '</div></div>' +
+            metricHtml('资产', fmtUsd(target.currentTvl), rAssets) +
+            metricHtml('净资产', fmtUsd(target.cleanAssetsTvl), rClean) +
+            metricHtml('现货成交量', fmtUsd(target.spotVolume), rSpot) +
+            metricHtml('合约成交量', fmtUsd(target.derivVolume), rDeriv) +
+            metricHtml('合约持仓', fmtUsd(target.oi), rOi) +
           '</div>' +
           '<div class="chips">' +
             '<span class="chip ' + i24.cls + '">24小时流入 ' + i24.text + '</span>' +
@@ -512,7 +603,8 @@
       titleEn: 'HTX',
       badge: '火币',
       siteLabel: '火币官网',
-      fallbackUrl: 'https://www.htx.com/'
+      fallbackUrl: 'https://www.htx.com/',
+      pinTop: true
     };
 
     var CEX_SNAPSHOT = {"updatedAt":"2026-10-14T19:19:00+08:00","cexs":[{"name":"Binance","slug":"Binance-CEX","url":"https://www.binance.com","currentTvl":172105395687.82086,"cleanAssetsTvl":145669752880.1529,"inflows_24h":-66480975.96991153,"inflows_1w":809699754.4874631,"inflows_1m":-1009163406.1903234,"spotVolume":9378217047.965311,"oi":33389273839.954994,"derivVolume":53635367064.06354,"leverage":0.22921212660685575},{"name":"OKX","slug":"okx","url":"https://www.okx.com","currentTvl":31298417247.349106,"cleanAssetsTvl":29790383221.129265,"inflows_24h":64323809.56818946,"inflows_1w":299403360.04150677,"inflows_1m":353806104.2222528,"spotVolume":1712377884.048012,"oi":7722735750.48297,"derivVolume":18173227036.92973,"leverage":0.2592358645794629},{"name":"Bybit","slug":"Bybit","url":"https://www.bybit.com","currentTvl":15975419055.71994,"cleanAssetsTvl":15382943743.180683,"inflows_24h":84705501.10997519,"inflows_1w":-210992982.33444878,"inflows_1m":1329401230.219216,"spotVolume":1630260119.8253858,"oi":13072095208.202927,"derivVolume":10944721227.397266,"leverage":0.8497785226574618},{"name":"Bitfinex","slug":"bitfinex","url":"https://www.bitfinex.com","currentTvl":21163090439.836647,"cleanAssetsTvl":15261592085.139957,"inflows_24h":100112529.06558914,"inflows_1w":604779482.3976963,"inflows_1m":1366978589.5049167,"spotVolume":358865018.734525,"oi":871510157.9363481,"derivVolume":56945164.416057095,"leverage":0.05710479962211333},{"name":"Robinhood","slug":"robinhood","url":"https://robinhood.com","currentTvl":15132768936.664324,"cleanAssetsTvl":15132768936.664324,"inflows_24h":-3458172.613511563,"inflows_1w":-3458445.375801308,"inflows_1m":-3333664.1147736665,"spotVolume":null,"oi":null,"derivVolume":null,"leverage":null},{"name":"Gate","slug":"Gate","url":"https://www.gate.com","currentTvl":7406714754.231501,"cleanAssetsTvl":6210241649.852731,"inflows_24h":54428808.1882147,"inflows_1w":43520735.58078652,"inflows_1m":119397911.83282302,"spotVolume":1474943754.878484,"oi":13507032424.94961,"derivVolume":10310236439.190529,"leverage":2.174960844763571},{"name":"Bitget","slug":"bitget","url":"https://www.bitget.com","currentTvl":6231762466.293937,"cleanAssetsTvl":5741713448.144603,"inflows_24h":25845864.971884433,"inflows_1w":-14868667.015319463,"inflows_1m":369547731.53462565,"spotVolume":731165297.4692506,"oi":8445654438.112312,"derivVolume":6665536357.559503,"leverage":1.4709292817184163},{"name":"Gemini","slug":"gemini","url":"https://www.gemini.com","currentTvl":5560421394.268951,"cleanAssetsTvl":5560421394.268951,"inflows_24h":8603605.73238256,"inflows_1w":11778128.53003117,"inflows_1m":-4163034.4522709353,"spotVolume":57685295.24328773,"oi":null,"derivVolume":null,"leverage":null},{"name":"MEXC","slug":"mexc","url":"https://www.mexc.com","currentTvl":5411486030.2516575,"cleanAssetsTvl":4776037566.071438,"inflows_24h":8180224.9131773375,"inflows_1w":16767675.07742615,"inflows_1m":-34290461.896440126,"spotVolume":1013865286.056506,"oi":12693721459.116158,"derivVolume":9921167696.681715,"leverage":2.6577934707405295},{"name":"Bitstamp","slug":"bitstamp","url":"https://www.bitstamp.net","currentTvl":4763032587.348976,"cleanAssetsTvl":4763032587.348976,"inflows_24h":1808259.279127325,"inflows_1w":1194604938.8703678,"inflows_1m":-85737140.57128125,"spotVolume":310381968.3399831,"oi":null,"derivVolume":null,"leverage":null},{"name":"HTX","slug":"htx","url":"https://www.htx.com/","currentTvl":4180704572.6517205,"cleanAssetsTvl":4167148134.2805266,"inflows_24h":4328876.530032365,"inflows_1w":-3298094.80463367,"inflows_1m":-25489787.817619782,"spotVolume":848536633.8497604,"oi":2491570896.997703,"derivVolume":983324023.1517255,"leverage":0.5979079256868995},{"name":"Deribit","slug":"deribit","url":"https://www.deribit.com","currentTvl":3952642512.1478457,"cleanAssetsTvl":3952642512.1478457,"inflows_24h":11645110.184885914,"inflows_1w":-18249429.775053393,"inflows_1m":-1524341507.876649,"spotVolume":752518549.1176592,"oi":2260799865.618703,"derivVolume":9459468464.671186,"leverage":0.5719717527376883},{"name":"KuCoin","slug":"kucoin","url":"https://www.kucoin.com","currentTvl":3374139253.043782,"cleanAssetsTvl":2851266173.200328,"inflows_24h":-24694971.54059941,"inflows_1w":-82383365.16905686,"inflows_1m":-33826770.33927699,"spotVolume":1261916896.871387,"oi":3119837104.937737,"derivVolume":2130351880.7702315,"leverage":1.0941935671463316},{"name":"Crypto.com","slug":"Crypto-com","url":"https://crypto.com","currentTvl":2478731429.293106,"cleanAssetsTvl":2473502817.0239024,"inflows_24h":14258249.99856362,"inflows_1w":-14422279.55997716,"inflows_1m":-18991671.287608117,"spotVolume":644232648.472993,"oi":1835778448.6981976,"derivVolume":441587388.7703297,"leverage":0.7421776260222702},{"name":"HashKey Exchange","slug":"hashkey-exchange","url":"https://www.hashkey.com","currentTvl":1590816325.5877783,"cleanAssetsTvl":1590816325.5877783,"inflows_24h":-7628714.050054825,"inflows_1w":-43513910.799747765,"inflows_1m":-94795086.69005892,"spotVolume":null,"oi":null,"derivVolume":null,"leverage":null},{"name":"Bitkub","slug":"bitkub","url":"https://www.bitkub.com/","currentTvl":1533916472.4948068,"cleanAssetsTvl":1533916472.4948068,"inflows_24h":2838391.16861372,"inflows_1w":11126714.428442769,"inflows_1m":12792932.235581065,"spotVolume":29279612.671412926,"oi":null,"derivVolume":null,"leverage":null},{"name":"Poloniex","slug":"poloniex","url":"https://www.poloniex.com/","currentTvl":1274790631.237448,"cleanAssetsTvl":1274790631.237448,"inflows_24h":7810318.17445074,"inflows_1w":-374113548.85637295,"inflows_1m":-288983248.50868386,"spotVolume":705029440.3047835,"oi":null,"derivVolume":null,"leverage":null},{"name":"SwissBorg","slug":"swissborg","url":"https://swissborg.com","currentTvl":1062746331.8442903,"cleanAssetsTvl":921156454.1093974,"inflows_24h":652341.4215220134,"inflows_1w":-1375304.0029427856,"inflows_1m":1364091.080698498,"spotVolume":null,"oi":null,"derivVolume":null,"leverage":null},{"name":"OSL Exchange","slug":"osl-exchange","url":"https://www.osl.com/en","currentTvl":749132421.1364565,"cleanAssetsTvl":749132421.1364565,"inflows_24h":1878473.0485489734,"inflows_1w":-16217826.614184229,"inflows_1m":-32430881.717780937,"spotVolume":72750583.3653731,"oi":null,"derivVolume":null,"leverage":null},{"name":"Bitmex","slug":"bitmex","url":"https://www.bitmex.com","currentTvl":739684938.5335922,"cleanAssetsTvl":739684938.5335922,"inflows_24h":-850000.8789036707,"inflows_1w":3613020.138080981,"inflows_1m":-46436070.34756313,"spotVolume":null,"oi":0,"derivVolume":0,"leverage":0}]};
