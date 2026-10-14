@@ -10,7 +10,10 @@
       --fg: #f4f6fb;
       --muted: #9aa3b5;
       --accent: #7c5cff;
+      --up: #2ee6a6;
+      --down: #ff6b8a;
       --border: rgba(255,255,255,0.1);
+      --card: rgba(255,255,255,0.04);
     }
     * { box-sizing: border-box; }
     html, body {
@@ -34,7 +37,7 @@
       border-bottom: 1px solid var(--border);
     }
     .topbar-inner {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px;
       display: flex;
@@ -84,13 +87,207 @@
     }
 
     .main {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 24px 20px 48px;
       min-height: 60vh;
     }
     .panel { display: none; }
     .panel.active { display: block; }
+
+    .status {
+      padding: 48px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .status.error { color: var(--down); }
+    .status a { color: var(--accent); text-decoration: underline; }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(124,92,255,0.18), rgba(46,230,166,0.06));
+      border: 1px solid rgba(124,92,255,0.45);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 0 0 1px rgba(124,92,255,0.08), 0 20px 50px rgba(0,0,0,0.35);
+      margin-bottom: 22px;
+    }
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .hero-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+    }
+    .hero-name {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .hero-sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+    .hero-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hero-links a {
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      transition: color .15s, border-color .15s;
+    }
+    .hero-links a:hover {
+      color: var(--fg);
+      border-color: rgba(124,92,255,0.5);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    @media (min-width: 720px) {
+      .hero-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    .metric {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .metric .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .metric .value {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      word-break: break-all;
+    }
+    .metric .value.sm { font-size: 18px; }
+    .up { color: var(--up); }
+    .down { color: var(--down); }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .chip {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+    }
+    .chip.up {
+      color: var(--up);
+      border-color: rgba(46,230,166,0.35);
+      background: rgba(46,230,166,0.08);
+    }
+    .chip.down {
+      color: var(--down);
+      border-color: rgba(255,107,138,0.35);
+      background: rgba(255,107,138,0.08);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 980px;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(0,0,0,0.25);
+      position: sticky;
+      top: 0;
+    }
+    th:first-child, td:first-child,
+    th:nth-child(2), td:nth-child(2) {
+      text-align: left;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(255,255,255,0.03); }
+    tr.binance-row td {
+      background: rgba(124,92,255,0.12);
+      border-top: 1px solid rgba(124,92,255,0.35);
+      border-bottom: 1px solid rgba(124,92,255,0.35);
+      font-weight: 700;
+    }
+    tr.binance-row td:first-child {
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+    .rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      background: rgba(255,255,255,0.06);
+    }
+    .rank.top {
+      background: var(--accent);
+      color: #fff;
+    }
+    .name-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .name-cell a:hover { color: var(--accent); }
+    .footnote {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .footnote a { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -107,7 +304,10 @@
   </header>
 
   <main class="main">
-    <section class="panel active" id="panel-binance" role="tabpanel"></section>
+    <section class="panel active" id="panel-binance" role="tabpanel">
+      <div class="status" id="binance-status">加载 DefiLlama CEX 数据中…</div>
+      <div id="binance-content" hidden></div>
+    </section>
     <section class="panel" id="panel-htx" role="tabpanel"></section>
     <section class="panel" id="panel-bnb" role="tabpanel"></section>
     <section class="panel" id="panel-tron" role="tabpanel"></section>
@@ -143,6 +343,151 @@
     var hash = (location.hash || '#binance').slice(1);
     if (!panels[hash]) hash = 'binance';
     activate(hash);
+
+    function fmtUsd(n) {
+      if (n == null || !isFinite(n)) return '—';
+      var abs = Math.abs(n);
+      var sign = n < 0 ? '-' : '';
+      if (abs >= 1e12) return sign + '$' + (abs / 1e12).toFixed(2) + 't';
+      if (abs >= 1e9) return sign + '$' + (abs / 1e9).toFixed(2) + 'b';
+      if (abs >= 1e6) return sign + '$' + (abs / 1e6).toFixed(2) + 'm';
+      if (abs >= 1e3) return sign + '$' + (abs / 1e3).toFixed(2) + 'k';
+      return sign + '$' + abs.toFixed(0);
+    }
+
+    function fmtInflow(n) {
+      if (n == null || !isFinite(n)) return { text: '—', cls: '' };
+      var text = (n > 0 ? '+' : '') + fmtUsd(n);
+      var cls = n > 0 ? 'up' : (n < 0 ? 'down' : '');
+      return { text: text, cls: cls };
+    }
+
+    function fmtLev(n) {
+      if (n == null || !isFinite(n)) return '—';
+      return n.toFixed(2) + 'x';
+    }
+
+    function isBinance(c) {
+      var name = (c.name || '').toLowerCase();
+      var slug = (c.slug || '').toLowerCase();
+      return name === 'binance' || slug.indexOf('binance') === 0;
+    }
+
+    function renderBinance(cexs) {
+      var status = document.getElementById('binance-status');
+      var content = document.getElementById('binance-content');
+
+      var ranked = cexs.slice().sort(function (a, b) {
+        var av = a.cleanAssetsTvl != null ? a.cleanAssetsTvl : (a.currentTvl || 0);
+        var bv = b.cleanAssetsTvl != null ? b.cleanAssetsTvl : (b.currentTvl || 0);
+        return bv - av;
+      });
+
+      var binance = null;
+      for (var i = 0; i < ranked.length; i++) {
+        if (isBinance(ranked[i])) { binance = ranked[i]; break; }
+      }
+      if (!binance) {
+        status.className = 'status error';
+        status.innerHTML = '未找到币安数据。请查看 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX</a>';
+        return;
+      }
+
+      var top = ranked.slice(0, 15);
+      var i24 = fmtInflow(binance.inflows_24h);
+      var i7 = fmtInflow(binance.inflows_1w);
+      var i30 = fmtInflow(binance.inflows_1m);
+      var binanceUrl = binance.url || 'https://www.binance.com';
+
+      var rows = top.map(function (c, idx) {
+        var highlight = isBinance(c);
+        var f24 = fmtInflow(c.inflows_24h);
+        var f7 = fmtInflow(c.inflows_1w);
+        var f30 = fmtInflow(c.inflows_1m);
+        var nameHtml = c.url
+          ? '<a href="' + c.url + '" target="_blank" rel="noopener">' + (c.name || '—') + '</a>'
+          : (c.name || '—');
+        return (
+          '<tr class="' + (highlight ? 'binance-row' : '') + '">' +
+            '<td><span class="rank' + (idx === 0 ? ' top' : '') + '">' + (idx + 1) + '</span></td>' +
+            '<td><div class="name-cell">' + nameHtml + (highlight ? ' <span class="badge">币安</span>' : '') + '</div></td>' +
+            '<td>' + fmtUsd(c.currentTvl) + '</td>' +
+            '<td>' + fmtUsd(c.cleanAssetsTvl) + '</td>' +
+            '<td class="' + f24.cls + '">' + f24.text + '</td>' +
+            '<td class="' + f7.cls + '">' + f7.text + '</td>' +
+            '<td class="' + f30.cls + '">' + f30.text + '</td>' +
+            '<td>' + fmtUsd(c.spotVolume) + '</td>' +
+            '<td>' + fmtUsd(c.derivVolume) + '</td>' +
+            '<td>' + fmtUsd(c.oi) + '</td>' +
+            '<td>' + fmtLev(c.leverage) + '</td>' +
+          '</tr>'
+        );
+      }).join('');
+
+      content.innerHTML =
+        '<article class="hero">' +
+          '<div class="hero-top">' +
+            '<div class="hero-title">' +
+              '<span class="badge">#1</span>' +
+              '<div>' +
+                '<div class="hero-name">币安 · Binance</div>' +
+                '<div class="hero-sub">DefiLlama CEX 储备与交易数据</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="hero-links">' +
+              '<a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX ↗</a>' +
+              '<a href="' + binanceUrl + '" target="_blank" rel="noopener">币安官网 ↗</a>' +
+            '</div>' +
+          '</div>' +
+          '<div class="hero-grid">' +
+            '<div class="metric"><div class="label">资产 Assets</div><div class="value">' + fmtUsd(binance.currentTvl) + '</div></div>' +
+            '<div class="metric"><div class="label">清洁资产 Clean Assets</div><div class="value">' + fmtUsd(binance.cleanAssetsTvl) + '</div></div>' +
+            '<div class="metric"><div class="label">现货成交量 Spot Volume</div><div class="value sm">' + fmtUsd(binance.spotVolume) + '</div></div>' +
+            '<div class="metric"><div class="label">合约成交量 USD Perp Volume</div><div class="value sm">' + fmtUsd(binance.derivVolume) + '</div></div>' +
+            '<div class="metric"><div class="label">合约持仓 OI</div><div class="value sm">' + fmtUsd(binance.oi) + '</div></div>' +
+            '<div class="metric"><div class="label">平均杠杆 Avg Leverage</div><div class="value sm">' + fmtLev(binance.leverage) + '</div></div>' +
+          '</div>' +
+          '<div class="chips">' +
+            '<span class="chip ' + i24.cls + '">24h流入 ' + i24.text + '</span>' +
+            '<span class="chip ' + i7.cls + '">7d流入 ' + i7.text + '</span>' +
+            '<span class="chip ' + i30.cls + '">30d流入 ' + i30.text + '</span>' +
+          '</div>' +
+        '</article>' +
+        '<div class="table-wrap">' +
+          '<table>' +
+            '<thead><tr>' +
+              '<th>#</th><th>Name</th><th>Assets</th><th>Clean Assets</th>' +
+              '<th>24h Inflows</th><th>7d Inflows</th><th>30d Inflows</th>' +
+              '<th>Spot Volume</th><th>Perp Volume</th><th>OI</th><th>Leverage</th>' +
+            '</tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</div>' +
+        '<p class="footnote">数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX</a> · 实时拉取</p>';
+
+      status.hidden = true;
+      content.hidden = false;
+    }
+
+    function loadCexs() {
+      var status = document.getElementById('binance-status');
+      fetch('https://api.llama.fi/cexs')
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          var list = (data && data.cexs) ? data.cexs : [];
+          if (!list.length) throw new Error('empty');
+          renderBinance(list);
+        })
+        .catch(function () {
+          status.className = 'status error';
+          status.innerHTML = '加载失败，请稍后重试或直接查看 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX</a>';
+        });
+    }
+
+    loadCexs();
   </script>
 </body>
 </html>
