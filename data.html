@@ -518,8 +518,9 @@
           ? '<a href="' + c.url + '" target="_blank" rel="noopener">' + (c.name || '—') + '</a>'
           : (c.name || '—');
         var trueRank = trueRankMap[c.name + '|' + (c.slug || '')] || (idx + 1);
-        var displayRank = opts.pinTop ? (idx + 1) : trueRank;
-        var rankClass = 'rank' + ((opts.pinTop ? idx === 0 : trueRank === 1) ? ' top' : '');
+        // 置顶只改顺序，# 列仍用真实排名
+        var displayRank = trueRank;
+        var rankClass = 'rank' + (trueRank === 1 || (opts.pinTop && highlight) ? ' top' : '');
         return (
           '<tr class="' + (highlight ? 'highlight-row' : '') + '">' +
             '<td><span class="' + rankClass + '">' + displayRank + '</span></td>' +
