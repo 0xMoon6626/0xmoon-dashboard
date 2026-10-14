@@ -435,7 +435,7 @@
               '</div>' +
             '</div>' +
             '<div class="hero-links">' +
-              '<a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX ↗</a>' +
+              '<a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama 交易所 ↗</a>' +
               '<a href="' + binanceUrl + '" target="_blank" rel="noopener">币安官网 ↗</a>' +
             '</div>' +
           '</div>' +
@@ -463,7 +463,7 @@
             '<tbody>' + rows + '</tbody>' +
           '</table>' +
         '</div>' +
-        '<p class="footnote">数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX</a> · 实时拉取</p>';
+        '<p class="footnote">数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama 交易所</a> · 实时拉取</p>';
 
       status.hidden = true;
       content.hidden = false;
@@ -478,7 +478,7 @@
         renderBinance(CEX_SNAPSHOT.cexs);
         var foot = document.querySelector('#binance-content .footnote');
         if (foot && CEX_SNAPSHOT.updatedAt) {
-          foot.innerHTML = '数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX</a> · 快照 ' + CEX_SNAPSHOT.updatedAt + ' · 尝试实时刷新中…';
+          foot.innerHTML = '数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama 交易所</a> · 快照 ' + CEX_SNAPSHOT.updatedAt + ' · 尝试实时刷新中…';
         }
       }
       fetch('https://api.llama.fi/cexs')
@@ -492,14 +492,14 @@
           renderBinance(list);
           var foot = document.querySelector('#binance-content .footnote');
           if (foot) {
-            foot.innerHTML = '数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX</a> · 实时拉取';
+            foot.innerHTML = '数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama 交易所</a> · 实时拉取';
           }
         })
         .catch(function () {
           if (document.getElementById('binance-content') && !document.getElementById('binance-content').hidden) {
             var foot = document.querySelector('#binance-content .footnote');
             if (foot && CEX_SNAPSHOT && CEX_SNAPSHOT.updatedAt) {
-              foot.innerHTML = '数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama CEX</a> · 快照 ' + CEX_SNAPSHOT.updatedAt + '（实时接口不可用，已显示离线数据）';
+              foot.innerHTML = '数据来自 <a href="https://defillama.com/cexs" target="_blank" rel="noopener">DefiLlama 交易所</a> · 快照 ' + CEX_SNAPSHOT.updatedAt + '（实时接口不可用，已显示离线数据）';
             }
             return;
           }
