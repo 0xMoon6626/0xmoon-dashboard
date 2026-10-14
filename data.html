@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- build:row5-20261014-1927 -->
   <title>0xMoon专用数据看板</title>
   <style>
     :root {
@@ -164,14 +165,18 @@
 
     .hero-grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
       gap: 12px;
+      width: 100%;
     }
+    /* 窄屏也保持一行，横向滑动，不再折成两行 */
     @media (max-width: 900px) {
-      .hero-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-    @media (max-width: 560px) {
-      .hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-grid {
+        grid-template-columns: repeat(5, minmax(150px, 1fr));
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+      }
     }
     .metric {
       background: rgba(0,0,0,0.25);
