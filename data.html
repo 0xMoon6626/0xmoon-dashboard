@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- build:htx-20261014-1955 -->
+  <!-- build:bnb-subnav-20261014-2149 -->
   <title>0xMoon专用数据看板</title>
   <style>
     :root {
@@ -318,6 +318,55 @@
       padding: 2px 8px;
       letter-spacing: 0.02em;
     }
+
+    .subnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+    }
+    .subtab {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color .15s, background .15s, border-color .15s;
+    }
+    .subtab:hover { color: var(--fg); background: rgba(255,255,255,0.04); }
+    .subtab.active {
+      color: var(--fg);
+      background: rgba(124,92,255,0.18);
+      border-color: rgba(124,92,255,0.45);
+    }
+    .subpanel { display: none; }
+    .subpanel.active { display: block; }
+    .placeholder-card {
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      padding: 36px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .placeholder-card strong {
+      display: block;
+      color: var(--fg);
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -342,7 +391,38 @@
       <div class="status" id="htx-status">加载 DefiLlama 数据中…</div>
       <div id="htx-content" hidden></div>
     </section>
-    <section class="panel" id="panel-bnb" role="tabpanel"></section>
+    <section class="panel" id="panel-bnb" role="tabpanel">
+      <nav class="subnav" role="tablist" aria-label="BNB Chain 分级导航">
+        <button class="subtab active" type="button" data-sub="official" role="tab" aria-selected="true">官方数据</button>
+        <button class="subtab" type="button" data-sub="rwa" role="tab" aria-selected="false">RWA数据</button>
+        <button class="subtab" type="button" data-sub="bstocks" role="tab" aria-selected="false">bStocks数据</button>
+        <button class="subtab" type="button" data-sub="volume" role="tab" aria-selected="false">交易量数据</button>
+      </nav>
+      <div class="subpanel active" id="bnb-sub-official" role="tabpanel">
+        <div class="placeholder-card">
+          <strong>官方数据</strong>
+          占位区 · 后续接入 BNB Chain 官方链上 / 生态指标
+        </div>
+      </div>
+      <div class="subpanel" id="bnb-sub-rwa" role="tabpanel">
+        <div class="placeholder-card">
+          <strong>RWA数据</strong>
+          占位区 · 后续接入 BNB Chain RWA 相关数据
+        </div>
+      </div>
+      <div class="subpanel" id="bnb-sub-bstocks" role="tabpanel">
+        <div class="placeholder-card">
+          <strong>bStocks数据</strong>
+          占位区 · 后续接入 bStocks 相关数据
+        </div>
+      </div>
+      <div class="subpanel" id="bnb-sub-volume" role="tabpanel">
+        <div class="placeholder-card">
+          <strong>交易量数据</strong>
+          占位区 · 后续接入 BNB Chain 交易量数据
+        </div>
+      </div>
+    </section>
     <section class="panel" id="panel-tron" role="tabpanel"></section>
   </main>
 
@@ -374,8 +454,43 @@
     });
 
     var hash = (location.hash || '#binance').slice(1);
+    if (hash.indexOf('/') !== -1) hash = hash.split('/')[0];
     if (!panels[hash]) hash = 'binance';
     activate(hash);
+
+    (function initBnbSubnav() {
+      var root = document.getElementById('panel-bnb');
+      if (!root) return;
+      var subtabs = root.querySelectorAll('.subtab');
+      var subpanels = {
+        official: document.getElementById('bnb-sub-official'),
+        rwa: document.getElementById('bnb-sub-rwa'),
+        bstocks: document.getElementById('bnb-sub-bstocks'),
+        volume: document.getElementById('bnb-sub-volume')
+      };
+      function activateSub(id) {
+        if (!subpanels[id]) id = 'official';
+        subtabs.forEach(function (t) {
+          var on = t.getAttribute('data-sub') === id;
+          t.classList.toggle('active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        Object.keys(subpanels).forEach(function (k) {
+          if (subpanels[k]) subpanels[k].classList.toggle('active', k === id);
+        });
+        if (location.hash.indexOf('bnb') === 1 || location.hash === '#bnb' || !location.hash) {
+          history.replaceState(null, '', '#bnb/' + id);
+        }
+      }
+      subtabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          activateSub(t.getAttribute('data-sub'));
+        });
+      });
+      var parts = (location.hash || '').replace(/^#/, '').split('/');
+      if (parts[0] === 'bnb' && parts[1]) activateSub(parts[1]);
+      else activateSub('official');
+    })();
 
     function fmtUsd(n) {
       if (n == null || !isFinite(n)) return '—';
