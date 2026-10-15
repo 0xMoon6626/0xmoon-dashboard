@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-14T21:57:23+0800",
+  "updatedAt": "2026-10-15T08:06:58+0800",
   "source": "https://bscscan.com/charts",
-  "bnbPrice": "$738.24",
-  "bnbPriceChange": "(-0.35%)",
+  "bnbPrice": "$729.74",
+  "bnbPriceChange": "(-1.57%)",
   "bnbPriceDir": "down",
-  "marketCap": "$79,131,943,142.00",
+  "marketCap": "$78,220,830,388.00",
   "metrics": [
     {
       "key": "Addresses (Total)",
@@ -19,14 +19,14 @@
     },
     {
       "key": "Transactions (Total)",
-      "value": "15,261.96 M",
+      "value": "15,268.02 M",
       "change": null,
       "changeDir": "",
-      "tps": "240.6",
+      "tps": "166.8",
       "note": null,
       "href": "https://bscscan.com/txs",
       "labelZh": "交易总数",
-      "valueZh": "15,261.96 百万"
+      "valueZh": "15,268.02 百万"
     },
     {
       "key": "New Addresses (24h)",
@@ -52,14 +52,14 @@
     },
     {
       "key": "Tokens (Total)",
-      "value": "13,466,838",
+      "value": "13,475,931",
       "change": null,
       "changeDir": "",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/tokens",
       "labelZh": "代币总数",
-      "valueZh": "13,466,838"
+      "valueZh": "13,475,931"
     },
     {
       "key": "Pending Transactions (1h)",
