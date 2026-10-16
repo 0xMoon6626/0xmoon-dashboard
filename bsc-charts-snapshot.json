@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-15T12:59:12+0800",
+  "updatedAt": "2026-10-16T08:05:48+0800",
   "source": "https://bscscan.com/charts",
-  "bnbPrice": "$722.54",
-  "bnbPriceChange": "(-2.99%)",
+  "bnbPrice": "$728.98",
+  "bnbPriceChange": "(-0.08%)",
   "bnbPriceDir": "down",
-  "marketCap": "$77,449,041,213.00",
+  "marketCap": "$78,139,322,191.00",
   "metrics": [
     {
       "key": "Addresses (Total)",
@@ -19,14 +19,14 @@
     },
     {
       "key": "Transactions (Total)",
-      "value": "15,271.58 M",
+      "value": "15,285.12 M",
       "change": null,
       "changeDir": "",
-      "tps": "203.8",
+      "tps": "190.1",
       "note": null,
       "href": "https://bscscan.com/txs",
       "labelZh": "交易总数",
-      "valueZh": "15,271.58 百万"
+      "valueZh": "15,285.12 百万"
     },
     {
       "key": "New Addresses (24h)",
@@ -52,14 +52,14 @@
     },
     {
       "key": "Tokens (Total)",
-      "value": "13,479,616",
+      "value": "13,495,714",
       "change": null,
       "changeDir": "",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/tokens",
       "labelZh": "代币总数",
-      "valueZh": "13,479,616"
+      "valueZh": "13,495,714"
     },
     {
       "key": "Pending Transactions (1h)",
@@ -147,7 +147,7 @@
       "note": null,
       "href": "https://bscscan.com/chart/gasused",
       "labelZh": "Gas 消耗合计（24小时）",
-      "valueZh": "3,189,417.39 百万"
+      "valueZh": "3,189,417.39 百万illion"
     },
     {
       "key": "Network Utilization (24H)",
