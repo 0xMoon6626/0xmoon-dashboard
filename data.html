@@ -1360,6 +1360,8 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       return '<a href="' + CMC_CHART_URL + '" target="_blank" rel="noopener">CoinMarketCap 交易所流入流出</a>';
     }
 
+    var CMC_ROW_LIMIT = 23;
+
     function cmcRowsFrom(data) {
       if (!data) return [];
       if (data.data && Array.isArray(data.data.flowList)) return data.data.flowList;
@@ -1368,11 +1370,21 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       return [];
     }
 
+    function cmcTopRows(list) {
+      var ranked = list.slice().sort(function (a, b) {
+        var ar = (a && a.exchangeRank != null && isFinite(Number(a.exchangeRank))) ? Number(a.exchangeRank) : Infinity;
+        var br = (b && b.exchangeRank != null && isFinite(Number(b.exchangeRank))) ? Number(b.exchangeRank) : Infinity;
+        if (ar !== br) return ar - br;
+        return String((a && a.name) || '').localeCompare(String((b && b.name) || ''), 'zh-CN');
+      });
+      return ranked.slice(0, CMC_ROW_LIMIT);
+    }
+
     function renderCmcFlows(data, sourceKind) {
       var status = document.getElementById('cmc-flow-status');
       var content = document.getElementById('cmc-flow-content');
       if (!status || !content) return false;
-      var list = cmcRowsFrom(data);
+      var list = cmcTopRows(cmcRowsFrom(data));
       if (!list.length) return false;
 
       var updatedAt = '';
@@ -1414,11 +1426,11 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
 
       var note;
       if (sourceKind === 'live') {
-        note = '数据来自 ' + cmcChartLink() + ' · 实时接口' + (updatedAt ? ' · ' + escHtml(updatedAt) : '');
+        note = '数据来自 ' + cmcChartLink() + ' · 排名前 ' + list.length + ' · 实时接口' + (updatedAt ? ' · ' + escHtml(updatedAt) : '');
       } else if (sourceKind === 'file') {
-        note = '浏览器跨域无法直连 CoinMarketCap，已显示快照 ' + escHtml(updatedAt) + ' · 来源 ' + cmcChartLink();
+        note = '浏览器跨域无法直连 CoinMarketCap，已显示快照 ' + escHtml(updatedAt) + ' · 排名前 ' + list.length + ' · 来源 ' + cmcChartLink();
       } else {
-        note = '浏览器跨域无法直连 CoinMarketCap，已显示内嵌快照 ' + escHtml(updatedAt) + ' · 来源 ' + cmcChartLink();
+        note = '浏览器跨域无法直连 CoinMarketCap，已显示内嵌快照 ' + escHtml(updatedAt) + ' · 排名前 ' + list.length + ' · 来源 ' + cmcChartLink();
       }
 
       content.innerHTML =
