@@ -531,6 +531,11 @@
       color: var(--fg);
       border-color: rgba(124,92,255,0.5);
     }
+    .binance-col .table-wrap.cmc td { padding: 12px 14px; }
+    .binance-col .table-wrap.cmc table.sortable thead th .sort-btn {
+      min-height: 40px;
+      padding: 12px 14px;
+    }
     .table-wrap.cmc table { min-width: 760px; }
     .table-wrap.cmc th,
     .table-wrap.cmc td { padding: 10px 10px; }
@@ -872,11 +877,12 @@
         return;
       }
 
-      var top = ranked.slice(0, 15);
+      var rowLimit = opts.rowLimit || 15;
+      var top = ranked.slice(0, rowLimit);
       if (opts.pinTop) {
         top = top.filter(function (c) { return !opts.match(c); });
         top.unshift(target);
-        if (top.length > 15) top = top.slice(0, 15);
+        if (top.length > rowLimit) top = top.slice(0, rowLimit);
       }
 
       var i24 = fmtInflow(target.inflows_24h);
@@ -975,7 +981,8 @@
       titleEn: 'Binance',
       badge: '币安',
       siteLabel: '币安官网',
-      fallbackUrl: 'https://www.binance.com'
+      fallbackUrl: 'https://www.binance.com',
+      rowLimit: 23
     };
 
     var PANEL_HTX = {
@@ -1380,12 +1387,69 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       return ranked.slice(0, CMC_ROW_LIMIT);
     }
 
+    function cmcFieldRank(list, key, match) {
+      var scored = [];
+      for (var i = 0; i < list.length; i++) {
+        var v = Number(list[i][key]);
+        if (list[i][key] == null || !isFinite(v)) continue;
+        scored.push({ row: list[i], v: v });
+      }
+      scored.sort(function (a, b) { return b.v - a.v; });
+      for (var j = 0; j < scored.length; j++) {
+        if (match(scored[j].row)) return j + 1;
+      }
+      return null;
+    }
+
+    function cmcHeroHtml(all, target) {
+      if (!target) return '';
+      var f24 = fmtInflow(target.netFlow24hUsd);
+      var f7 = fmtInflow(target.netFlow7dUsd);
+      var f30 = fmtInflow(target.netFlow30dUsd);
+      var rank = (target.exchangeRank != null && isFinite(Number(target.exchangeRank))) ? Number(target.exchangeRank) : null;
+      var exUrl = target.slug ? ('https://coinmarketcap.com/exchanges/' + encodeURIComponent(target.slug) + '/') : '';
+      return (
+        '<article class="hero">' +
+          '<div class="hero-top">' +
+            '<div class="hero-title">' +
+              '<span class="badge">' + (rank != null ? ('#' + rank) : '币安') + '</span>' +
+              '<div>' +
+                '<div class="hero-name">币安 · Binance</div>' +
+                '<div class="hero-sub">CoinMarketCap 流入流出</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="hero-links">' +
+              '<a href="' + CMC_CHART_URL + '" target="_blank" rel="noopener">图表 ↗</a>' +
+              (exUrl ? '<a href="' + exUrl + '" target="_blank" rel="noopener">币安页 ↗</a>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="hero-grid">' +
+            metricHtml('总资产', fmtUsd(target.totalAsset), cmcFieldRank(all, 'totalAsset', isCmcBinance)) +
+            metricHtml('24小时净流入', '<span class="' + f24.cls + '">' + f24.text + '</span>', cmcFieldRank(all, 'netFlow24hUsd', isCmcBinance)) +
+            metricHtml('7日净流入', '<span class="' + f7.cls + '">' + f7.text + '</span>', cmcFieldRank(all, 'netFlow7dUsd', isCmcBinance)) +
+            metricHtml('30日净流入', '<span class="' + f30.cls + '">' + f30.text + '</span>', cmcFieldRank(all, 'netFlow30dUsd', isCmcBinance)) +
+            metricHtml('合约持仓', fmtUsd(target.openInterestUsd), cmcFieldRank(all, 'openInterestUsd', isCmcBinance)) +
+          '</div>' +
+          '<div class="chips">' +
+            '<span class="chip ' + f24.cls + '">24小时净流入 ' + f24.text + '</span>' +
+            '<span class="chip ' + f7.cls + '">7日净流入 ' + f7.text + '</span>' +
+            '<span class="chip ' + f30.cls + '">30日净流入 ' + f30.text + '</span>' +
+          '</div>' +
+        '</article>'
+      );
+    }
+
     function renderCmcFlows(data, sourceKind) {
       var status = document.getElementById('cmc-flow-status');
       var content = document.getElementById('cmc-flow-content');
       if (!status || !content) return false;
-      var list = cmcTopRows(cmcRowsFrom(data));
+      var all = cmcRowsFrom(data);
+      var list = cmcTopRows(all);
       if (!list.length) return false;
+      var target = null;
+      for (var ti = 0; ti < list.length; ti++) {
+        if (isCmcBinance(list[ti])) { target = list[ti]; break; }
+      }
 
       var updatedAt = '';
       if (sourceKind === 'live') {
@@ -1434,6 +1498,7 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       }
 
       content.innerHTML =
+        cmcHeroHtml(all, target) +
         '<div class="table-wrap cmc">' +
           '<table>' +
             '<thead><tr>' +
