@@ -494,6 +494,46 @@
       font-weight: 750;
       letter-spacing: -0.02em;
     }
+
+    body.binance-wide .topbar-inner,
+    body.binance-wide .main {
+      max-width: 1520px;
+    }
+    .binance-split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .binance-split {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .binance-col { min-width: 0; }
+    .binance-col .section-head { margin-bottom: 12px; }
+    .binance-col .hero-grid {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+    }
+    .binance-col .status { padding: 28px 12px; }
+    .col-ext {
+      font-size: 12px;
+      font-weight: 650;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      white-space: nowrap;
+    }
+    .col-ext:hover {
+      color: var(--fg);
+      border-color: rgba(124,92,255,0.5);
+    }
+    .table-wrap.cmc table { min-width: 760px; }
+    .table-wrap.cmc th,
+    .table-wrap.cmc td { padding: 10px 10px; }
   </style>
 </head>
 <body>
@@ -511,8 +551,23 @@
 
   <main class="main">
     <section class="panel active" id="panel-binance" role="tabpanel">
-      <div class="status" id="binance-status">加载 DefiLlama 数据中…</div>
-      <div id="binance-content" hidden></div>
+      <div class="binance-split">
+        <div class="binance-col">
+          <div class="section-head">
+            <h3>DefiLlama</h3>
+          </div>
+          <div class="status" id="binance-status">加载 DefiLlama 数据中…</div>
+          <div id="binance-content" hidden></div>
+        </div>
+        <div class="binance-col">
+          <div class="section-head">
+            <h3>CoinMarketCap 流入流出</h3>
+            <a class="col-ext" href="https://coinmarketcap.com/zh/charts/exchange-inflows-outflows/" target="_blank" rel="noopener">图表 ↗</a>
+          </div>
+          <div class="status" id="cmc-flow-status">加载 CoinMarketCap 流入流出…</div>
+          <div id="cmc-flow-content" hidden></div>
+        </div>
+      </div>
     </section>
     <section class="panel" id="panel-htx" role="tabpanel">
       <div class="status" id="htx-status">加载 DefiLlama 数据中…</div>
@@ -567,6 +622,7 @@
       Object.keys(panels).forEach(function (k) {
         panels[k].classList.toggle('active', k === id);
       });
+      document.body.classList.toggle('binance-wide', id === 'binance');
       history.replaceState(null, '', '#' + id);
     }
 
@@ -1192,7 +1248,169 @@ var BSC_CHARTS_SNAPSHOT = {"updatedAt": "2026-10-18T08:10:23+0800", "source": "h
         });
     }
 
+    /*CMC_FLOWS_SNAPSHOT_BEGIN*/
+var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https://coinmarketcap.com/zh/charts/exchange-inflows-outflows/","sourceEn":"https://coinmarketcap.com/charts/exchange-inflows-outflows/","api":"https://api.coinmarketcap.com/data-api/v3/exchange-asset/flow/list?convertId=2781&start=1&limit=100&sortBy=exchangeRank&sortType=asc","convert":"USD","convertId":2781,"count":70,"exchanges":[{"id":270,"name":"Binance","slug":"binance","exchangeRank":1,"totalAsset":164515012620.54,"openInterestUsd":32686708440.95,"netFlow24hUsd":0,"netFlow7dUsd":-46486105.75,"netFlow30dUsd":-2587165484.84},{"id":294,"name":"OKX","slug":"okx","exchangeRank":2,"totalAsset":20815775510.22,"openInterestUsd":7703045332.37,"netFlow24hUsd":-104058690.81,"netFlow7dUsd":-70238147.04,"netFlow30dUsd":276360762.98},{"id":521,"name":"Bybit","slug":"bybit","exchangeRank":3,"totalAsset":12166214248.59,"openInterestUsd":6240858308.01,"netFlow24hUsd":27562544.17,"netFlow7dUsd":-94316460.44,"netFlow30dUsd":-133888719.11},{"id":513,"name":"Bitget","slug":"bitget","exchangeRank":4,"totalAsset":5618501638.97,"openInterestUsd":4157516080.27,"netFlow24hUsd":-39534046.53,"netFlow7dUsd":-88483374.81,"netFlow30dUsd":-1679285008.51},{"id":302,"name":"Gate","slug":"gate","exchangeRank":5,"totalAsset":7080257513.2,"openInterestUsd":12402969862.61,"netFlow24hUsd":28130746.56,"netFlow7dUsd":189495422.57,"netFlow30dUsd":190852279.69},{"id":311,"name":"KuCoin","slug":"kucoin","exchangeRank":6,"totalAsset":3390018491.65,"openInterestUsd":2756099699.36,"netFlow24hUsd":-5005308.35,"netFlow7dUsd":-33485251.86,"netFlow30dUsd":-121736632.24},{"id":544,"name":"MEXC","slug":"mexc","exchangeRank":7,"totalAsset":5258456462.04,"openInterestUsd":6210645248.2,"netFlow24hUsd":16061258.74,"netFlow7dUsd":-6295489.86,"netFlow30dUsd":-262752710.07},{"id":102,"name":"HTX","slug":"htx","exchangeRank":8,"totalAsset":3319641347.83,"openInterestUsd":1102313402.05,"netFlow24hUsd":38837665.06,"netFlow7dUsd":2865580.7,"netFlow30dUsd":-19838286.34},{"id":1149,"name":"Crypto.com Exchange","slug":"crypto-com-exchange","exchangeRank":9,"totalAsset":2246394961.5,"openInterestUsd":1780795766.19,"netFlow24hUsd":-23572290.67,"netFlow7dUsd":-28255063.57,"netFlow30dUsd":-28961606.19},{"id":37,"name":"Bitfinex","slug":"bitfinex","exchangeRank":10,"totalAsset":21173862667.15,"openInterestUsd":778752270.09,"netFlow24hUsd":-151682796.6,"netFlow7dUsd":147288448.29,"netFlow30dUsd":1270741549.52},{"id":1064,"name":"BingX","slug":"bingx","exchangeRank":11,"totalAsset":1044128685.74,"openInterestUsd":2718506008.52,"netFlow24hUsd":3478925.97,"netFlow7dUsd":5715159.06,"netFlow30dUsd":17841907.36},{"id":333,"name":"LBank","slug":"lbank","exchangeRank":12,"totalAsset":519531165.17,"openInterestUsd":4853906115.69,"netFlow24hUsd":124585.42,"netFlow7dUsd":562201.42,"netFlow30dUsd":-237640.63},{"id":70,"name":"Bitstamp by Robinhood","slug":"bitstamp","exchangeRank":13,"totalAsset":2201398088.88,"openInterestUsd":null,"netFlow24hUsd":4498465.51,"netFlow7dUsd":-126691335.58,"netFlow30dUsd":-176887154.87},{"id":525,"name":"XT.COM","slug":"xt","exchangeRank":14,"totalAsset":43514979.87,"openInterestUsd":6512018913.3,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":151,"name":"Gemini","slug":"gemini","exchangeRank":15,"totalAsset":5353223778.49,"openInterestUsd":2956828.93,"netFlow24hUsd":-1076995.02,"netFlow7dUsd":-22415200.94,"netFlow30dUsd":-36194250.68},{"id":6137,"name":"Toobit","slug":"toobit","exchangeRank":16,"totalAsset":71846142.88,"openInterestUsd":2871443105.71,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":790,"name":"Pionex","slug":"pionex","exchangeRank":17,"totalAsset":124809678.72,"openInterestUsd":365887753.59,"netFlow24hUsd":496615.36,"netFlow7dUsd":346846.06,"netFlow30dUsd":258206.87},{"id":517,"name":"CoinW","slug":"coinw","exchangeRank":18,"totalAsset":300630978.33,"openInterestUsd":5582928378.64,"netFlow24hUsd":333829.8,"netFlow7dUsd":33679847.01,"netFlow30dUsd":21342274.15},{"id":10153,"name":"Ourbit","slug":"ourbit","exchangeRank":19,"totalAsset":148423373.5,"openInterestUsd":958151661.47,"netFlow24hUsd":384011.63,"netFlow7dUsd":841854.03,"netFlow30dUsd":-497391.29},{"id":1182,"name":"Deepcoin","slug":"deepcoin","exchangeRank":20,"totalAsset":121139275.18,"openInterestUsd":3746135773.33,"netFlow24hUsd":-4163734.65,"netFlow7dUsd":-6248357.93,"netFlow30dUsd":-47390913.68},{"id":937,"name":"Biconomy.com","slug":"biconomy","exchangeRank":21,"totalAsset":197490604.37,"openInterestUsd":101689182.46,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":-7633486.72},{"id":943,"name":"Hotcoin","slug":"hotcoin-global","exchangeRank":22,"totalAsset":133144666.8,"openInterestUsd":1070271593.86,"netFlow24hUsd":-162025.7,"netFlow7dUsd":627521.13,"netFlow30dUsd":-18180470.41},{"id":10922,"name":"MGBX","slug":"mgbx","exchangeRank":23,"totalAsset":217523713.62,"openInterestUsd":15249121.89,"netFlow24hUsd":-1044993.79,"netFlow7dUsd":3183332.89,"netFlow30dUsd":-49136317.29},{"id":5751,"name":"WEEX","slug":"weex","exchangeRank":24,"totalAsset":211252277.65,"openInterestUsd":11867425878.67,"netFlow24hUsd":0,"netFlow7dUsd":58.43,"netFlow30dUsd":7227.21},{"id":7302,"name":"Bitunix","slug":"bitunix","exchangeRank":25,"totalAsset":230134190.46,"openInterestUsd":676793070.63,"netFlow24hUsd":2535600.14,"netFlow7dUsd":8923593.62,"netFlow30dUsd":-18902680.37},{"id":9449,"name":"Echobit","slug":"echobit","exchangeRank":26,"totalAsset":148498256.76,"openInterestUsd":7485897031.23,"netFlow24hUsd":3243934.1,"netFlow7dUsd":-19012910.27,"netFlow30dUsd":12505619.79},{"id":16,"name":"Poloniex","slug":"poloniex","exchangeRank":27,"totalAsset":55184102.67,"openInterestUsd":4817154.94,"netFlow24hUsd":6232695.71,"netFlow7dUsd":10821081.42,"netFlow30dUsd":8739205.14},{"id":6637,"name":"BloFin","slug":"blofin","exchangeRank":28,"totalAsset":9776252.72,"openInterestUsd":524094750.07,"netFlow24hUsd":9618.78,"netFlow7dUsd":27941.19,"netFlow30dUsd":-29298082.78},{"id":330,"name":"BigONE","slug":"bigone","exchangeRank":29,"totalAsset":420928825.28,"openInterestUsd":null,"netFlow24hUsd":-10505.07,"netFlow7dUsd":18834539.99,"netFlow30dUsd":28184069.45},{"id":8125,"name":"OrangeX","slug":"orangex","exchangeRank":30,"totalAsset":49146111.13,"openInterestUsd":2819949529.11,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":-848929.95},{"id":658,"name":"BTSE","slug":"btse","exchangeRank":31,"totalAsset":1624021.54,"openInterestUsd":89270346.17,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":1645,"name":"Tapbit","slug":"tapbit","exchangeRank":32,"totalAsset":11402288.8,"openInterestUsd":4144585432.27,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":11339,"name":"YUBIT","slug":"yubit","exchangeRank":33,"totalAsset":125258591.8,"openInterestUsd":331852140.04,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":5.32},{"id":955,"name":"Phemex","slug":"phemex","exchangeRank":34,"totalAsset":274986003.24,"openInterestUsd":2170251568.87,"netFlow24hUsd":-711229.39,"netFlow7dUsd":-150449.57,"netFlow30dUsd":943787.75},{"id":7618,"name":"BVOX","slug":"bvox","exchangeRank":35,"totalAsset":59529177.27,"openInterestUsd":1706736081.4,"netFlow24hUsd":-3229281.64,"netFlow7dUsd":9598263.17,"netFlow30dUsd":-12966372.51},{"id":9798,"name":"HashKey Global","slug":"hashkey-global","exchangeRank":36,"totalAsset":7212106.17,"openInterestUsd":4310099.42,"netFlow24hUsd":-5446.3,"netFlow7dUsd":-457365.39,"netFlow30dUsd":-1342692.18},{"id":7699,"name":"OmniX","slug":"omnix","exchangeRank":37,"totalAsset":58638224.34,"openInterestUsd":61102252.9,"netFlow24hUsd":-46599.68,"netFlow7dUsd":424962.17,"netFlow30dUsd":378775.06},{"id":433,"name":"Bitrue","slug":"bitrue","exchangeRank":38,"totalAsset":187843044.07,"openInterestUsd":369486956.29,"netFlow24hUsd":1692211.84,"netFlow7dUsd":624423.45,"netFlow30dUsd":908964.82},{"id":9015,"name":"Websea","slug":"websea","exchangeRank":39,"totalAsset":2545329.22,"openInterestUsd":150431695.93,"netFlow24hUsd":0,"netFlow7dUsd":-2.15,"netFlow30dUsd":-12913226.86},{"id":33206,"name":"CrypFine","slug":"crypfine","exchangeRank":40,"totalAsset":22786711.14,"openInterestUsd":160352613.0,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":795,"name":"HashKey Exchange","slug":"hashkey-exchange","exchangeRank":41,"totalAsset":83284506.21,"openInterestUsd":null,"netFlow24hUsd":831446.0,"netFlow7dUsd":6221310.18,"netFlow30dUsd":8263434.53},{"id":9452,"name":"Backpack Exchange","slug":"backpack-exchange","exchangeRank":42,"totalAsset":144228829.15,"openInterestUsd":51237342.38,"netFlow24hUsd":-1029767.53,"netFlow7dUsd":13035142.55,"netFlow30dUsd":-14840549.26},{"id":436,"name":"Bitkub","slug":"bitkub","exchangeRank":43,"totalAsset":1687164578.99,"openInterestUsd":null,"netFlow24hUsd":-2556585.01,"netFlow7dUsd":2556580.41,"netFlow30dUsd":5728701.05},{"id":157,"name":"BitMEX","slug":"bitmex","exchangeRank":44,"totalAsset":724009110.62,"openInterestUsd":null,"netFlow24hUsd":0,"netFlow7dUsd":-674535.77,"netFlow30dUsd":-31240831.91},{"id":10361,"name":"CoinUp.io","slug":"coinup-io","exchangeRank":45,"totalAsset":2725913625.46,"openInterestUsd":35959140.68,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":11090,"name":"x.me Exchange","slug":"voox-exchange","exchangeRank":46,"totalAsset":134543961.63,"openInterestUsd":312497392.95,"netFlow24hUsd":0,"netFlow7dUsd":1.0,"netFlow30dUsd":1.0},{"id":194,"name":"Digital X","slug":"korbit","exchangeRank":47,"totalAsset":47824097.97,"openInterestUsd":null,"netFlow24hUsd":-56668.8,"netFlow7dUsd":-4693630.22,"netFlow30dUsd":-568014.52},{"id":68,"name":"Indodax","slug":"indodax","exchangeRank":48,"totalAsset":547921920.77,"openInterestUsd":null,"netFlow24hUsd":6194329.21,"netFlow7dUsd":3177725.49,"netFlow30dUsd":-21608150.52},{"id":1653,"name":"Zoomex","slug":"zoomex","exchangeRank":49,"totalAsset":37208179.46,"openInterestUsd":615477397.92,"netFlow24hUsd":-279105.74,"netFlow7dUsd":14447525.24,"netFlow30dUsd":12120224.61},{"id":1411,"name":"Coinstore","slug":"coinstore","exchangeRank":50,"totalAsset":66465433.53,"openInterestUsd":null,"netFlow24hUsd":57.31,"netFlow7dUsd":-274108.99,"netFlow30dUsd":-3348331.61},{"id":407,"name":"DigiFinex","slug":"digifinex","exchangeRank":51,"totalAsset":4989274.87,"openInterestUsd":4158795498.05,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":6472,"name":"Flipster","slug":"flipster","exchangeRank":52,"totalAsset":32766351.81,"openInterestUsd":24845855.79,"netFlow24hUsd":214336.13,"netFlow7dUsd":-465580.16,"netFlow30dUsd":-1385463.79},{"id":1188,"name":"BYDFi","slug":"bydfi","exchangeRank":53,"totalAsset":96294155.72,"openInterestUsd":103925695.52,"netFlow24hUsd":12215.18,"netFlow7dUsd":101322.66,"netFlow30dUsd":-8667789.94},{"id":12131,"name":"BitradeX","slug":"bitradex","exchangeRank":54,"totalAsset":199009871.3,"openInterestUsd":72500176.34,"netFlow24hUsd":0,"netFlow7dUsd":-1192.73,"netFlow30dUsd":-8731763.89},{"id":949,"name":"CoinDCX","slug":"coindcx","exchangeRank":55,"totalAsset":50230072.88,"openInterestUsd":null,"netFlow24hUsd":0,"netFlow7dUsd":2993.1,"netFlow30dUsd":-52797.64},{"id":1277,"name":"Blockfinex","slug":"blockfinex","exchangeRank":56,"totalAsset":1389012298.3,"openInterestUsd":152903242.97,"netFlow24hUsd":-221405.67,"netFlow7dUsd":-33018315.39,"netFlow30dUsd":-1459290.85},{"id":10962,"name":"BASEKX","slug":"ekbit","exchangeRank":57,"totalAsset":113661836.94,"openInterestUsd":1239477773.5,"netFlow24hUsd":-998616.37,"netFlow7dUsd":2995845.24,"netFlow30dUsd":-34247329.88},{"id":12386,"name":"BitTap","slug":"bittap","exchangeRank":58,"totalAsset":325889464.61,"openInterestUsd":143618679.6,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":-1.03},{"id":11989,"name":"LeveX","slug":"levex","exchangeRank":59,"totalAsset":6711265.02,"openInterestUsd":150065606.98,"netFlow24hUsd":6765.25,"netFlow7dUsd":-226176.13,"netFlow30dUsd":-888771.43},{"id":33080,"name":"OneEx","slug":"oneex","exchangeRank":60,"totalAsset":231272026.38,"openInterestUsd":null,"netFlow24hUsd":1093789.32,"netFlow7dUsd":2692933.66,"netFlow30dUsd":17962691.57},{"id":32929,"name":"Tebbit","slug":"tebbit","exchangeRank":61,"totalAsset":100614215.68,"openInterestUsd":806458411.15,"netFlow24hUsd":2622794.79,"netFlow7dUsd":13520652.42,"netFlow30dUsd":2622794.79},{"id":12467,"name":"Gems Trade","slug":"gems-trade","exchangeRank":62,"totalAsset":722807.95,"openInterestUsd":null,"netFlow24hUsd":0,"netFlow7dUsd":431864.88,"netFlow30dUsd":-434726.14},{"id":12404,"name":"Aivora Exchange","slug":"aivora-exchange","exchangeRank":63,"totalAsset":25598110.9,"openInterestUsd":2275937057.36,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":350,"name":"CoinEx","slug":"coinex","exchangeRank":64,"totalAsset":40464735.85,"openInterestUsd":63345618.73,"netFlow24hUsd":-2503987.38,"netFlow7dUsd":-6437625.65,"netFlow30dUsd":-88185870.0},{"id":32686,"name":"SunX","slug":"sunx","exchangeRank":65,"totalAsset":87558871.69,"openInterestUsd":1458536303.56,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":32534,"name":"Gate US","slug":"gate-us","exchangeRank":66,"totalAsset":8832876.69,"openInterestUsd":null,"netFlow24hUsd":-20060.84,"netFlow7dUsd":1201828.35,"netFlow30dUsd":-31807019.2},{"id":34437,"name":"Feather Exchange","slug":"feather-exchange","exchangeRank":67,"totalAsset":21280931.82,"openInterestUsd":null,"netFlow24hUsd":30933.17,"netFlow7dUsd":221057.53,"netFlow30dUsd":305958.73},{"id":12855,"name":"NEX Exchange","slug":"nexchange","exchangeRank":68,"totalAsset":104931589.22,"openInterestUsd":721676476.91,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":-668209.06},{"id":1006,"name":"Ju.com","slug":"jucom","exchangeRank":69,"totalAsset":450483294.06,"openInterestUsd":52813.0,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":0},{"id":406,"name":"BitMart","slug":"bitmart","exchangeRank":70,"totalAsset":660177.33,"openInterestUsd":9946053139.61,"netFlow24hUsd":0,"netFlow7dUsd":0,"netFlow30dUsd":-126065944.11}],"refresh":"python3 scripts/refresh-cmc-exchange-flows.py"};
+/*CMC_FLOWS_SNAPSHOT_END*/
+
+    var CMC_FLOW_API = 'https://api.coinmarketcap.com/data-api/v3/exchange-asset/flow/list?convertId=2781&start=1&limit=100&sortBy=exchangeRank&sortType=asc';
+    var CMC_CHART_URL = 'https://coinmarketcap.com/zh/charts/exchange-inflows-outflows/';
+
+    function escHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function isCmcBinance(row) {
+      var slug = (row && row.slug ? String(row.slug) : '').toLowerCase();
+      var name = (row && row.name ? String(row.name) : '').toLowerCase();
+      return slug === 'binance' || name === 'binance';
+    }
+
+    function cmcChartLink() {
+      return '<a href="' + CMC_CHART_URL + '" target="_blank" rel="noopener">CoinMarketCap 交易所流入流出</a>';
+    }
+
+    function cmcRowsFrom(data) {
+      if (!data) return [];
+      if (data.data && Array.isArray(data.data.flowList)) return data.data.flowList;
+      if (Array.isArray(data.exchanges)) return data.exchanges;
+      if (Array.isArray(data.flowList)) return data.flowList;
+      return [];
+    }
+
+    function renderCmcFlows(data, sourceKind) {
+      var status = document.getElementById('cmc-flow-status');
+      var content = document.getElementById('cmc-flow-content');
+      if (!status || !content) return false;
+      var list = cmcRowsFrom(data);
+      if (!list.length) return false;
+
+      var updatedAt = '';
+      if (sourceKind === 'live') {
+        updatedAt = (data && data.status && data.status.timestamp) || '';
+      } else {
+        updatedAt = (data && data.updatedAt) || '';
+      }
+
+      var rows = list.map(function (c) {
+        var highlight = isCmcBinance(c);
+        var f24 = fmtInflow(c.netFlow24hUsd);
+        var f7 = fmtInflow(c.netFlow7dUsd);
+        var f30 = fmtInflow(c.netFlow30dUsd);
+        var slug = c.slug ? String(c.slug) : '';
+        var name = escHtml(c.name || '—');
+        var exUrl = slug ? ('https://coinmarketcap.com/exchanges/' + encodeURIComponent(slug) + '/') : '';
+        var nameHtml = exUrl
+          ? '<a href="' + exUrl + '" target="_blank" rel="noopener">' + name + '</a>'
+          : name;
+        var sourceHtml = exUrl
+          ? '<a href="' + exUrl + '#reserve" target="_blank" rel="noopener">查看储备</a>'
+          : '—';
+        var rank = (c.exchangeRank != null && isFinite(c.exchangeRank)) ? c.exchangeRank : '—';
+        var rankClass = 'rank' + (rank === 1 || highlight ? ' top' : '');
+        return (
+          '<tr class="' + (highlight ? 'highlight-row' : '') + '">' +
+            '<td><span class="' + rankClass + '">' + rank + '</span></td>' +
+            '<td><div class="name-cell">' + nameHtml + (highlight ? ' <span class="badge">币安</span>' : '') + '</div></td>' +
+            '<td>' + fmtUsd(c.totalAsset) + '</td>' +
+            '<td class="' + f24.cls + '">' + f24.text + '</td>' +
+            '<td class="' + f7.cls + '">' + f7.text + '</td>' +
+            '<td class="' + f30.cls + '">' + f30.text + '</td>' +
+            '<td>' + fmtUsd(c.openInterestUsd) + '</td>' +
+            '<td>' + sourceHtml + '</td>' +
+          '</tr>'
+        );
+      }).join('');
+
+      var note;
+      if (sourceKind === 'live') {
+        note = '数据来自 ' + cmcChartLink() + ' · 实时接口' + (updatedAt ? ' · ' + escHtml(updatedAt) : '');
+      } else if (sourceKind === 'file') {
+        note = '浏览器跨域无法直连 CoinMarketCap，已显示快照 ' + escHtml(updatedAt) + ' · 来源 ' + cmcChartLink();
+      } else {
+        note = '浏览器跨域无法直连 CoinMarketCap，已显示内嵌快照 ' + escHtml(updatedAt) + ' · 来源 ' + cmcChartLink();
+      }
+
+      content.innerHTML =
+        '<div class="table-wrap cmc">' +
+          '<table>' +
+            '<thead><tr>' +
+              '<th>#</th><th>交易所</th><th>总资产</th>' +
+              '<th>24小时净流入</th><th>7日净流入</th><th>30日净流入</th>' +
+              '<th>合约持仓</th><th>来源</th>' +
+            '</tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</div>' +
+        '<p class="footnote">' + note + '</p>';
+
+      status.hidden = true;
+      content.hidden = false;
+      return true;
+    }
+
+    function showCmcError() {
+      var status = document.getElementById('cmc-flow-status');
+      var content = document.getElementById('cmc-flow-content');
+      if (content) content.hidden = true;
+      if (!status) return;
+      status.hidden = false;
+      status.className = 'status error';
+      status.innerHTML = 'CoinMarketCap 流入流出加载失败。请打开 ' + cmcChartLink();
+    }
+
+    function loadCmcSnapshotFile() {
+      return fetch('cmc-exchange-flows-snapshot.json?t=' + Date.now())
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          if (!renderCmcFlows(data, 'file')) throw new Error('empty snapshot');
+        });
+    }
+
+    function loadCmcEmbedded() {
+      if (typeof CMC_FLOWS_SNAPSHOT !== 'undefined' && renderCmcFlows(CMC_FLOWS_SNAPSHOT, 'embedded')) {
+        return;
+      }
+      showCmcError();
+    }
+
+    function loadCmcFlows() {
+      var status = document.getElementById('cmc-flow-status');
+      var content = document.getElementById('cmc-flow-content');
+      if (status) {
+        status.hidden = false;
+        status.className = 'status';
+        status.textContent = '正在从 CoinMarketCap 拉取…';
+      }
+      if (content) content.hidden = true;
+
+      // Public chart JSON. GitHub Pages is blocked by CORS (ACAO is only
+      // https://coinmarketcap.com). On failure, use the checked-in snapshot.
+      // Refresh: python3 scripts/refresh-cmc-exchange-flows.py
+      fetch(CMC_FLOW_API, { method: 'GET', mode: 'cors', credentials: 'omit' })
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          if (!renderCmcFlows(data, 'live')) throw new Error('empty');
+        })
+        .catch(function () {
+          if (status) status.textContent = '正在读取 CoinMarketCap 快照…';
+          loadCmcSnapshotFile().catch(function () {
+            loadCmcEmbedded();
+          });
+        });
+    }
+
     loadCexs();
+    loadCmcFlows();
     loadBnbOfficial();
     loadBnbRwa();
   </script>
