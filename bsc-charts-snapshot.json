@@ -1,65 +1,65 @@
 {
-  "updatedAt": "2026-10-17T08:04:21+0800",
+  "updatedAt": "2026-10-18T08:10:23+0800",
   "source": "https://bscscan.com/charts",
-  "bnbPrice": "$720.57",
-  "bnbPriceChange": "(-1.10%)",
+  "bnbPrice": "$716.69",
+  "bnbPriceChange": "(-0.47%)",
   "bnbPriceDir": "down",
-  "marketCap": "$77,237,977,138.00",
+  "marketCap": "$76,822,072,231.00",
   "metrics": [
     {
       "key": "Addresses (Total)",
-      "value": "935,310,937",
-      "change": "0.07%",
+      "value": "935,836,082",
+      "change": "0.06%",
       "changeDir": "up",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/address",
       "labelZh": "地址总数",
-      "valueZh": "935,310,937"
+      "valueZh": "935,836,082"
     },
     {
       "key": "Transactions (Total)",
-      "value": "15,302.00 M",
+      "value": "15,317.27 M",
       "change": null,
       "changeDir": "",
-      "tps": "190.7",
+      "tps": "148.2",
       "note": null,
       "href": "https://bscscan.com/txs",
       "labelZh": "交易总数",
-      "valueZh": "15,302.00 百万"
+      "valueZh": "15,317.27 百万"
     },
     {
       "key": "New Addresses (24h)",
-      "value": "627,735",
-      "change": "1.80%",
-      "changeDir": "up",
+      "value": "525,145",
+      "change": "16.34%",
+      "changeDir": "down",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/address",
       "labelZh": "新增地址（24小时）",
-      "valueZh": "627,735"
+      "valueZh": "525,145"
     },
     {
       "key": "Transactions (24h)",
-      "value": "17,101,124",
-      "change": "4.72%",
-      "changeDir": "up",
+      "value": "16,890,019",
+      "change": "1.23%",
+      "changeDir": "down",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/tx",
       "labelZh": "交易笔数（24小时）",
-      "valueZh": "17,101,124"
+      "valueZh": "16,890,019"
     },
     {
       "key": "Tokens (Total)",
-      "value": "13,513,713",
+      "value": "13,526,214",
       "change": null,
       "changeDir": "",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/tokens",
       "labelZh": "代币总数",
-      "valueZh": "13,513,713"
+      "valueZh": "13,526,214"
     },
     {
       "key": "Pending Transactions (1h)",
@@ -74,20 +74,20 @@
     },
     {
       "key": "Total Transaction Fee (24h)",
-      "value": "605.70 BNB",
-      "change": "0.05%",
-      "changeDir": "down",
+      "value": "727.34 BNB",
+      "change": "20.08%",
+      "changeDir": "up",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/transactionfee",
       "labelZh": "交易手续费合计（24小时）",
-      "valueZh": "605.70 BNB"
+      "valueZh": "727.34 BNB"
     },
     {
       "key": "Avg. Transaction Fee (24h)",
       "value": "0.03 USD",
-      "change": "4.65%",
-      "changeDir": "down",
+      "change": "20.29%",
+      "changeDir": "up",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/avg-txfee-usd",
@@ -96,69 +96,69 @@
     },
     {
       "key": "Contracts Deployed (Total)",
-      "value": "58,647,307",
-      "change": "0.17%",
+      "value": "58,736,627",
+      "change": "0.15%",
       "changeDir": "up",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/deployed-contracts",
       "labelZh": "已部署合约总数",
-      "valueZh": "58,647,307"
+      "valueZh": "58,736,627"
     },
     {
       "key": "Contracts Verified (Total)",
-      "value": "1,734,639",
+      "value": "1,735,276",
       "change": "0.04%",
       "changeDir": "up",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/verified-contracts",
       "labelZh": "已验证合约总数",
-      "valueZh": "1,734,639"
+      "valueZh": "1,735,276"
     },
     {
       "key": "Contracts Deployed (24h)",
-      "value": "102,073",
-      "change": "12.55%",
+      "value": "89,320",
+      "change": "12.49%",
       "changeDir": "down",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/deployed-contracts",
       "labelZh": "新部署合约（24小时）",
-      "valueZh": "102,073"
+      "valueZh": "89,320"
     },
     {
       "key": "Contracts Verified (24h)",
-      "value": "686",
-      "change": "1.33%",
-      "changeDir": "up",
+      "value": "637",
+      "change": "7.14%",
+      "changeDir": "down",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/verified-contracts",
       "labelZh": "新验证合约（24小时）",
-      "valueZh": "686"
+      "valueZh": "637"
     },
     {
       "key": "Total Gas Used (24h)",
-      "value": "3,194,031.62 Million",
-      "change": "0.14%",
-      "changeDir": "up",
+      "value": "3,064,443.04 Million",
+      "change": "4.06%",
+      "changeDir": "down",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/gasused",
       "labelZh": "Gas 消耗合计（24小时）",
-      "valueZh": "3,194,031.62 百万"
+      "valueZh": "3,064,443.04 百万"
     },
     {
       "key": "Network Utilization (24H)",
-      "value": "24.5%",
+      "value": "23.7%",
       "change": null,
       "changeDir": "",
       "tps": null,
       "note": null,
       "href": "https://bscscan.com/chart/networkutilization",
       "labelZh": "网络利用率（24小时）",
-      "valueZh": "24.5%"
+      "valueZh": "23.7%"
     }
   ]
 }
