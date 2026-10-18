@@ -662,8 +662,23 @@
       </div>
     </section>
     <section class="panel" id="panel-htx" role="tabpanel">
-      <div class="status" id="htx-status">加载 DefiLlama 数据中…</div>
-      <div id="htx-content" hidden></div>
+      <div class="binance-split">
+        <div class="binance-col">
+          <div class="section-head">
+            <h3>DefiLlama</h3>
+          </div>
+          <div class="status" id="htx-status">加载 DefiLlama 数据中…</div>
+          <div id="htx-content" hidden></div>
+        </div>
+        <div class="binance-col">
+          <div class="section-head">
+            <h3>CoinMarketCap 流入流出</h3>
+            <a class="col-ext" href="https://coinmarketcap.com/zh/charts/exchange-inflows-outflows/" target="_blank" rel="noopener">图表 ↗</a>
+          </div>
+          <div class="status" id="htx-cmc-status">加载 CoinMarketCap 流入流出…</div>
+          <div id="htx-cmc-content" hidden></div>
+        </div>
+      </div>
     </section>
     <section class="panel" id="panel-bnb" role="tabpanel">
       <nav class="subnav" role="tablist" aria-label="BNB Chain 分级导航">
@@ -714,7 +729,7 @@
       Object.keys(panels).forEach(function (k) {
         panels[k].classList.toggle('active', k === id);
       });
-      document.body.classList.toggle('binance-wide', id === 'binance');
+      document.body.classList.toggle('binance-wide', id === 'binance' || id === 'htx');
       history.replaceState(null, '', '#' + id);
     }
 
@@ -1363,11 +1378,15 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       return slug === 'binance' || name === 'binance';
     }
 
+    function isCmcHtx(row) {
+      var slug = (row && row.slug ? String(row.slug) : '').toLowerCase();
+      var name = (row && row.name ? String(row.name) : '').toLowerCase();
+      return slug === 'htx' || slug === 'huobi' || name === 'htx' || name === 'huobi';
+    }
+
     function cmcChartLink() {
       return '<a href="' + CMC_CHART_URL + '" target="_blank" rel="noopener">CoinMarketCap 交易所流入流出</a>';
     }
-
-    var CMC_ROW_LIMIT = 23;
 
     function cmcRowsFrom(data) {
       if (!data) return [];
@@ -1377,15 +1396,59 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       return [];
     }
 
-    function cmcTopRows(list) {
+    // Same row cap as the matching DefiLlama table. If the highlighted
+    // exchange sits outside that window, append it and keep its real rank.
+    function cmcTopRows(list, limit, match) {
+      var cap = (limit == null) ? (PANEL_BINANCE.rowLimit || 23) : limit;
       var ranked = list.slice().sort(function (a, b) {
         var ar = (a && a.exchangeRank != null && isFinite(Number(a.exchangeRank))) ? Number(a.exchangeRank) : Infinity;
         var br = (b && b.exchangeRank != null && isFinite(Number(b.exchangeRank))) ? Number(b.exchangeRank) : Infinity;
         if (ar !== br) return ar - br;
         return String((a && a.name) || '').localeCompare(String((b && b.name) || ''), 'zh-CN');
       });
-      return ranked.slice(0, CMC_ROW_LIMIT);
+      var rows = ranked.slice(0, cap);
+      var appended = null;
+      if (match) {
+        var found = false;
+        for (var i = 0; i < rows.length; i++) {
+          if (match(rows[i])) { found = true; break; }
+        }
+        if (!found) {
+          for (var j = 0; j < ranked.length; j++) {
+            if (match(ranked[j])) {
+              rows.push(ranked[j]);
+              appended = ranked[j];
+              break;
+            }
+          }
+        }
+      }
+      return { rows: rows, appended: appended, limit: cap };
     }
+
+    // Shared by the 币安 and 火币 tabs. Row count follows each tab's DefiLlama limit.
+    var CMC_PANELS = [
+      {
+        statusId: 'cmc-flow-status',
+        contentId: 'cmc-flow-content',
+        match: isCmcBinance,
+        rowLimit: PANEL_BINANCE.rowLimit,
+        titleZh: PANEL_BINANCE.titleZh,
+        titleEn: PANEL_BINANCE.titleEn,
+        badge: PANEL_BINANCE.badge,
+        pageLabel: '币安页'
+      },
+      {
+        statusId: 'htx-cmc-status',
+        contentId: 'htx-cmc-content',
+        match: isCmcHtx,
+        rowLimit: PANEL_HTX.rowLimit || 15,
+        titleZh: PANEL_HTX.titleZh,
+        titleEn: PANEL_HTX.titleEn,
+        badge: PANEL_HTX.badge,
+        pageLabel: '火币页'
+      }
+    ];
 
     function cmcFieldRank(list, key, match) {
       var scored = [];
@@ -1401,8 +1464,8 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       return null;
     }
 
-    function cmcHeroHtml(all, target) {
-      if (!target) return '';
+    function cmcHeroHtml(all, target, cfg) {
+      if (!target || !cfg) return '';
       var f24 = fmtInflow(target.netFlow24hUsd);
       var f7 = fmtInflow(target.netFlow7dUsd);
       var f30 = fmtInflow(target.netFlow30dUsd);
@@ -1412,23 +1475,23 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
         '<article class="hero">' +
           '<div class="hero-top">' +
             '<div class="hero-title">' +
-              '<span class="badge">' + (rank != null ? ('#' + rank) : '币安') + '</span>' +
+              '<span class="badge">' + (rank != null ? ('#' + rank) : cfg.badge) + '</span>' +
               '<div>' +
-                '<div class="hero-name">币安 · Binance</div>' +
+                '<div class="hero-name">' + cfg.titleZh + ' · ' + cfg.titleEn + '</div>' +
                 '<div class="hero-sub">CoinMarketCap 流入流出</div>' +
               '</div>' +
             '</div>' +
             '<div class="hero-links">' +
               '<a href="' + CMC_CHART_URL + '" target="_blank" rel="noopener">图表 ↗</a>' +
-              (exUrl ? '<a href="' + exUrl + '" target="_blank" rel="noopener">币安页 ↗</a>' : '') +
+              (exUrl ? '<a href="' + exUrl + '" target="_blank" rel="noopener">' + cfg.pageLabel + ' ↗</a>' : '') +
             '</div>' +
           '</div>' +
           '<div class="hero-grid">' +
-            metricHtml('总资产', fmtUsd(target.totalAsset), cmcFieldRank(all, 'totalAsset', isCmcBinance)) +
-            metricHtml('24小时净流入', '<span class="' + f24.cls + '">' + f24.text + '</span>', cmcFieldRank(all, 'netFlow24hUsd', isCmcBinance)) +
-            metricHtml('7日净流入', '<span class="' + f7.cls + '">' + f7.text + '</span>', cmcFieldRank(all, 'netFlow7dUsd', isCmcBinance)) +
-            metricHtml('30日净流入', '<span class="' + f30.cls + '">' + f30.text + '</span>', cmcFieldRank(all, 'netFlow30dUsd', isCmcBinance)) +
-            metricHtml('合约持仓', fmtUsd(target.openInterestUsd), cmcFieldRank(all, 'openInterestUsd', isCmcBinance)) +
+            metricHtml('总资产', fmtUsd(target.totalAsset), cmcFieldRank(all, 'totalAsset', cfg.match)) +
+            metricHtml('24小时净流入', '<span class="' + f24.cls + '">' + f24.text + '</span>', cmcFieldRank(all, 'netFlow24hUsd', cfg.match)) +
+            metricHtml('7日净流入', '<span class="' + f7.cls + '">' + f7.text + '</span>', cmcFieldRank(all, 'netFlow7dUsd', cfg.match)) +
+            metricHtml('30日净流入', '<span class="' + f30.cls + '">' + f30.text + '</span>', cmcFieldRank(all, 'netFlow30dUsd', cfg.match)) +
+            metricHtml('合约持仓', fmtUsd(target.openInterestUsd), cmcFieldRank(all, 'openInterestUsd', cfg.match)) +
           '</div>' +
           '<div class="chips">' +
             '<span class="chip ' + f24.cls + '">24小时净流入 ' + f24.text + '</span>' +
@@ -1439,16 +1502,25 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       );
     }
 
-    function renderCmcFlows(data, sourceKind) {
-      var status = document.getElementById('cmc-flow-status');
-      var content = document.getElementById('cmc-flow-content');
+    function cmcLimitNote(picked, cfg) {
+      if (picked.appended) {
+        var rank = picked.appended.exchangeRank;
+        var rankText = (rank != null && isFinite(Number(rank))) ? String(Number(rank)) : '—';
+        return cfg.titleZh + '不在前 ' + picked.limit + '，已附于表尾，# 为真实排名 ' + rankText;
+      }
+      return '排名前 ' + picked.rows.length;
+    }
+
+    function renderCmcPanel(cfg, all, data, sourceKind) {
+      var status = document.getElementById(cfg.statusId);
+      var content = document.getElementById(cfg.contentId);
       if (!status || !content) return false;
-      var all = cmcRowsFrom(data);
-      var list = cmcTopRows(all);
+      var picked = cmcTopRows(all, cfg.rowLimit, cfg.match);
+      var list = picked.rows;
       if (!list.length) return false;
       var target = null;
       for (var ti = 0; ti < list.length; ti++) {
-        if (isCmcBinance(list[ti])) { target = list[ti]; break; }
+        if (cfg.match(list[ti])) { target = list[ti]; break; }
       }
 
       var updatedAt = '';
@@ -1459,7 +1531,7 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       }
 
       var rows = list.map(function (c) {
-        var highlight = isCmcBinance(c);
+        var highlight = cfg.match(c);
         var f24 = fmtInflow(c.netFlow24hUsd);
         var f7 = fmtInflow(c.netFlow7dUsd);
         var f30 = fmtInflow(c.netFlow30dUsd);
@@ -1472,12 +1544,12 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
         var sourceHtml = exUrl
           ? '<a href="' + exUrl + '#reserve" target="_blank" rel="noopener">查看储备</a>'
           : '—';
-        var rank = (c.exchangeRank != null && isFinite(c.exchangeRank)) ? c.exchangeRank : '—';
+        var rank = (c.exchangeRank != null && isFinite(Number(c.exchangeRank))) ? Number(c.exchangeRank) : '—';
         var rankClass = 'rank' + (rank === 1 || highlight ? ' top' : '');
         return (
           '<tr class="' + (highlight ? 'highlight-row' : '') + '">' +
             '<td><span class="' + rankClass + '">' + rank + '</span></td>' +
-            '<td><div class="name-cell">' + nameHtml + (highlight ? ' <span class="badge">币安</span>' : '') + '</div></td>' +
+            '<td><div class="name-cell">' + nameHtml + (highlight ? ' <span class="badge">' + cfg.badge + '</span>' : '') + '</div></td>' +
             '<td>' + fmtUsd(c.totalAsset) + '</td>' +
             '<td class="' + f24.cls + '">' + f24.text + '</td>' +
             '<td class="' + f7.cls + '">' + f7.text + '</td>' +
@@ -1488,17 +1560,18 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
         );
       }).join('');
 
+      var windowNote = cmcLimitNote(picked, cfg);
       var note;
       if (sourceKind === 'live') {
-        note = '数据来自 ' + cmcChartLink() + ' · 排名前 ' + list.length + ' · 实时接口' + (updatedAt ? ' · ' + escHtml(updatedAt) : '');
+        note = '数据来自 ' + cmcChartLink() + ' · ' + windowNote + ' · 实时接口' + (updatedAt ? ' · ' + escHtml(updatedAt) : '');
       } else if (sourceKind === 'file') {
-        note = '浏览器跨域无法直连 CoinMarketCap，已显示快照 ' + escHtml(updatedAt) + ' · 排名前 ' + list.length + ' · 来源 ' + cmcChartLink();
+        note = '浏览器跨域无法直连 CoinMarketCap，已显示快照 ' + escHtml(updatedAt) + ' · ' + windowNote + ' · 来源 ' + cmcChartLink();
       } else {
-        note = '浏览器跨域无法直连 CoinMarketCap，已显示内嵌快照 ' + escHtml(updatedAt) + ' · 排名前 ' + list.length + ' · 来源 ' + cmcChartLink();
+        note = '浏览器跨域无法直连 CoinMarketCap，已显示内嵌快照 ' + escHtml(updatedAt) + ' · ' + windowNote + ' · 来源 ' + cmcChartLink();
       }
 
       content.innerHTML =
-        cmcHeroHtml(all, target) +
+        cmcHeroHtml(all, target, cfg) +
         '<div class="table-wrap cmc">' +
           '<table>' +
             '<thead><tr>' +
@@ -1516,14 +1589,27 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
       return true;
     }
 
+    function renderCmcFlows(data, sourceKind) {
+      var all = cmcRowsFrom(data);
+      if (!all.length) return false;
+      var any = false;
+      for (var i = 0; i < CMC_PANELS.length; i++) {
+        if (renderCmcPanel(CMC_PANELS[i], all, data, sourceKind)) any = true;
+      }
+      return any;
+    }
+
     function showCmcError() {
-      var status = document.getElementById('cmc-flow-status');
-      var content = document.getElementById('cmc-flow-content');
-      if (content) content.hidden = true;
-      if (!status) return;
-      status.hidden = false;
-      status.className = 'status error';
-      status.innerHTML = 'CoinMarketCap 流入流出加载失败。请打开 ' + cmcChartLink();
+      for (var i = 0; i < CMC_PANELS.length; i++) {
+        var cfg = CMC_PANELS[i];
+        var status = document.getElementById(cfg.statusId);
+        var content = document.getElementById(cfg.contentId);
+        if (content) content.hidden = true;
+        if (!status) continue;
+        status.hidden = false;
+        status.className = 'status error';
+        status.innerHTML = 'CoinMarketCap 流入流出加载失败。请打开 ' + cmcChartLink();
+      }
     }
 
     function loadCmcSnapshotFile() {
@@ -1545,14 +1631,16 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
     }
 
     function loadCmcFlows() {
-      var status = document.getElementById('cmc-flow-status');
-      var content = document.getElementById('cmc-flow-content');
-      if (status) {
-        status.hidden = false;
-        status.className = 'status';
-        status.textContent = '正在从 CoinMarketCap 拉取…';
+      for (var i = 0; i < CMC_PANELS.length; i++) {
+        var status = document.getElementById(CMC_PANELS[i].statusId);
+        var content = document.getElementById(CMC_PANELS[i].contentId);
+        if (status) {
+          status.hidden = false;
+          status.className = 'status';
+          status.textContent = '正在从 CoinMarketCap 拉取…';
+        }
+        if (content) content.hidden = true;
       }
-      if (content) content.hidden = true;
 
       // Public chart JSON. GitHub Pages is blocked by CORS (ACAO is only
       // https://coinmarketcap.com). On failure, use the checked-in snapshot.
@@ -1566,7 +1654,10 @@ var CMC_FLOWS_SNAPSHOT = {"updatedAt":"2026-10-18T22:57:58+0800","source":"https
           if (!renderCmcFlows(data, 'live')) throw new Error('empty');
         })
         .catch(function () {
-          if (status) status.textContent = '正在读取 CoinMarketCap 快照…';
+          for (var s = 0; s < CMC_PANELS.length; s++) {
+            var st = document.getElementById(CMC_PANELS[s].statusId);
+            if (st && !st.hidden) st.textContent = '正在读取 CoinMarketCap 快照…';
+          }
           loadCmcSnapshotFile().catch(function () {
             loadCmcEmbedded();
           });
